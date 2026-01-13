@@ -16,7 +16,7 @@ namespace FIAP.FCG.CATALOG.WebApi.Controllers
             logger.LogInformation("POST - Criar Pedido");
 
             // grava pedido no banco
-            TryMethodAsync(() => orderService.Create(register), logger);
+            TryMethodAsync(() => orderService.Create(register), logger); 
 
             // envia a mensagem para o RabbitMQ
             await rabbitMQServiceProducer.SendMessageAsyncObjeto(register);
