@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="FIAP.FCG.CATALOG.Application/FIAP.FCG.CATALOG.Application.csproj" Id="4c58220d-e325-40df-a09a-e2e162bdda6a" />
+  <Project Path="FIAP.FCG.CATALOG.Core/FIAP.FCG.CATALOG.Core.csproj" />
+  <Project Path="FIAP.FCG.CATALOG.Infra/FIAP.FCG.CATALOG.Infra.csproj" />
+  <Project Path="FIAP.FCG.CATALOG.WebApi/FIAP.FCG.CATALOG.WebApi.csproj" />
+</Solution>

@@ -1,0 +1,13 @@
+=============================================================================
+DICAS PARA RODAR O MIGRATIONS
+=============================================================================
+
+1) comentar o código dentro do construtor public ApplicationDbContext()
+2) Acessar View -> other windows -> package manager console
+3) setar a combo "default project" para o projeto infra
+4) Add-Migration primeiraMigracao -StartupProject FIAP.FCG.CATALOG.Infra
+5) Update-Database -StartupProject FIAP.FCG.CATALOG.WebApi -Project FIAP.FCG.CATALOG.Infra -Connection "Server=LAPTOP-CK3KO69K\SQLEXPRESS;Database=FIAP_FCG_CATALOG;Trusted_Connection=True;TrustServerCertificate=True;"
+
+
+
+

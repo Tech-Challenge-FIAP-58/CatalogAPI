@@ -1,0 +1,8 @@
+docker-compose.yml -> sobre um container que roda o RabbitMQ
+
+--> comando: docker-compose up -d
+(precisa executar o docker desktop)
+
+RabbitMQ roda no endereço:
+localhost:15672 
+
