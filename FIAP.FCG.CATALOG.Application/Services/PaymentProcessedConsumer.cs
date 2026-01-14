@@ -63,31 +63,35 @@ namespace FIAP.FCG.CATALOG.Application.Services
                         var json = Encoding.UTF8.GetString(body);
 
                         // Desserializa para o objeto
-                        var catalog = JsonSerializer.Deserialize<CatalogRegisterDto>(json);
+                        var paymentProcessed = JsonSerializer.Deserialize<PaymentProcessedDto>(json);
 
-                        if (catalog == null)
+                        if (paymentProcessed == null)
                         {
                             Console.WriteLine("Mensagem recebida, mas não foi possível desserializar.");
                             return;
                         }
 
                         Console.WriteLine("====================================");
-                        Console.WriteLine("📦 Pedido recebido:");
-                        Console.WriteLine($"🆔 UserId.........: {catalog.UserId}");
-                        Console.WriteLine($"👤 GameId.........: {catalog.GameId}");
-                        Console.WriteLine($"💰 Price..........: R$ {catalog.Price:N2}");
+                        Console.WriteLine("📦 Processamento de pagamento recebido:");
+                        Console.WriteLine($"🆔 OrderId.........: {paymentProcessed.OrderId}");
+                        Console.WriteLine($"👤 PaymentStatus...: {paymentProcessed.PaymentStatus}");
                         Console.WriteLine("====================================");
-                        
 
-                        // grava no banco
-                        using var scope = _scopeFactory.CreateScope();
+                        // proximos passos falta fazer ----> Gilmar <----
+
+                        // primeiro tenho que pegar o Order do banco
+
+                        // depois atualizo o PaymentStatus
+
+                        // depios grava no banco o catalog
+                        /*using var scope = _scopeFactory.CreateScope();
                         var catalogService = scope.ServiceProvider.GetRequiredService<ICatalogService>();
 
-                        await catalogService.Create(catalog);
+                        await catalogService.Create(paymentProcessed);*/
 
 
 
-                        Console.WriteLine("✅ Pedido processado com sucesso!\n");
+                        Console.WriteLine("✅ Retorno do pagamento processado com sucesso!\n");
 
                         // ✅ CONFIRMA para o RabbitMQ
                         await channel.BasicAckAsync(ea.DeliveryTag, false); // chat recomendou

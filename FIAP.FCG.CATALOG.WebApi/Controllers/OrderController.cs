@@ -15,6 +15,33 @@ namespace FIAP.FCG.CATALOG.WebApi.Controllers
         {
             logger.LogInformation("POST - Criar Pedido");
 
+            // 1️ grava no banco e PEGA o ID
+            var orderId = await orderService.Create(register);
+
+            // 2️ monta o evento
+            OrderRegisteredDto orderRegistered = new OrderRegisteredDto();
+            orderRegistered.OrderId = orderId;
+            orderRegistered.UserId = register.UserId;
+            orderRegistered.GameId = register.GameId;
+            orderRegistered.Price = register.Price;
+            orderRegistered.PaymentStatus = register.PaymentStatus;
+            orderRegistered.CardName = register.CardName;
+            orderRegistered.CardNumber = register.CardNumber;
+            orderRegistered.ExpirationDate = register.ExpirationDate;
+            orderRegistered.Cvv = register.Cvv;
+            
+            // 3️ envia para o RabbitMQ
+            await rabbitMQServiceProducer.SendMessageAsyncObjeto(orderRegistered);
+
+            return StatusCode(StatusCodes.Status202Accepted);
+        }
+        /*
+        [HttpPost("RegisterOrder")]
+        [AllowAnonymous]
+        public async Task<IActionResult> Post([FromBody] OrderRegisterDto register)
+        {
+            logger.LogInformation("POST - Criar Pedido");
+
             // grava pedido no banco
             TryMethodAsync(() => orderService.Create(register), logger); 
 
@@ -22,7 +49,7 @@ namespace FIAP.FCG.CATALOG.WebApi.Controllers
             await rabbitMQServiceProducer.SendMessageAsyncObjeto(register);
 
             return StatusCode(StatusCodes.Status202Accepted);
-        }
+        }*/
 
     }
 }

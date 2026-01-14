@@ -10,11 +10,16 @@ namespace FIAP.FCG.CATALOG.Application.Services
 	{
         private readonly IOrderRepository _repository = repository;
 
-        public async Task<IApiResponse<int>> Create(OrderRegisterDto orderRegisterDto)
+        public async Task<int> Create(OrderRegisterDto orderRegisterDto)
+        {
+            return await _repository.Create(orderRegisterDto);
+        }
+
+        /*public async Task<IApiResponse<int>> Create(OrderRegisterDto orderRegisterDto)
         {
             var id = await _repository.Create(orderRegisterDto);
             return Created(id, "Pedido registrado com sucesso.");
-        }
+        }*/
 
     }
 }
