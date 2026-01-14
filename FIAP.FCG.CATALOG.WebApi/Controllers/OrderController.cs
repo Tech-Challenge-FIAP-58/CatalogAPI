@@ -20,11 +20,11 @@ namespace FIAP.FCG.CATALOG.WebApi.Controllers
 
             // 2️ monta o evento
             OrderRegisteredDto orderRegistered = new OrderRegisteredDto();
-            orderRegistered.OrderId = orderId;
-            orderRegistered.UserId = register.UserId;
-            orderRegistered.GameId = register.GameId;
-            orderRegistered.Price = register.Price;
-            orderRegistered.PaymentStatus = register.PaymentStatus;
+
+            orderRegistered.ClientId = register.UserId.ToString();
+            orderRegistered.OrderId = orderId.ToString();
+            orderRegistered.PaymentMethod = 1;
+            orderRegistered.Amount = register.Price;
             orderRegistered.CardName = register.CardName;
             orderRegistered.CardNumber = register.CardNumber;
             orderRegistered.ExpirationDate = register.ExpirationDate;
