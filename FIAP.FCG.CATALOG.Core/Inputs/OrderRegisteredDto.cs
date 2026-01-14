@@ -5,8 +5,8 @@ namespace FIAP.FCG.CATALOG.Core.Inputs;
 public sealed record class OrderRegisteredDto
 {
 
-    public string ClientId { get; set; }
-    public string OrderId { get; set; }
+    public int ClientId { get; set; }
+    public int OrderId { get; set; }
     public int PaymentMethod { get; set; }
     public decimal Amount { get; set; }
     public string CardName { get; set; }
