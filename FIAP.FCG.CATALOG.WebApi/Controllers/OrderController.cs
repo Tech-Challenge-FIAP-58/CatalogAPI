@@ -36,19 +36,38 @@ namespace FIAP.FCG.CATALOG.WebApi.Controllers
             return StatusCode(StatusCodes.Status202Accepted);
         }
         /*
-        [HttpPost("RegisterOrder")]
+        [HttpGet("GetOrderById/{id:int}")]
         [AllowAnonymous]
-        public async Task<IActionResult> Post([FromBody] OrderRegisterDto register)
+        public Task<IActionResult> GetById(int id)
         {
-            logger.LogInformation("POST - Criar Pedido");
+            logger.LogInformation("GET - Listar pedido por ID: {Id}", id);
+            return TryMethodAsync(() => orderService.GetById(id), logger);
+        }
 
-            // grava pedido no banco
-            TryMethodAsync(() => orderService.Create(register), logger); 
+        [HttpGet("GetOrderById{id}")]
+        [AllowAnonymous]
+        public Task<IActionResult> GetById(int id)
+        {
 
-            // envia a mensagem para o RabbitMQ
-            await rabbitMQServiceProducer.SendMessageAsyncObjeto(register);
+            try
+            {
+                logger.LogInformation("GET - Listar pedido por ID: {Id}", id);
+                return TryMethodAsync(() => orderService.GetById(id), logger);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Erro ao listar pedido por ID: {Id}", id);
+                throw;
+            }
+        }
 
-            return StatusCode(StatusCodes.Status202Accepted);
+        //[Authorize(Roles = "Admin")]
+        [HttpPut("UpdateOrder/{id:int}")]
+        [AllowAnonymous]
+        public Task<IActionResult> Put(int id, [FromBody] OrderUpdateDto update)
+        {
+            logger.LogInformation("PUT - Atualizar pedido com ID: {Id}", id);
+            return TryMethodAsync(() => orderService.Update(id, update), logger);
         }*/
 
     }

@@ -1,9 +1,10 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using FIAP.FCG.CATALOG.Core.Inputs;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Win32;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
-using Microsoft.Extensions.Hosting;
 using System.Text;
-using FIAP.FCG.CATALOG.Core.Inputs;
 using System.Text.Json;
 
 
@@ -77,19 +78,25 @@ namespace FIAP.FCG.CATALOG.Application.Services
                         Console.WriteLine($"👤 PaymentStatus...: {paymentProcessed.PaymentStatus}");
                         Console.WriteLine("====================================");
 
-                        // proximos passos falta fazer ----> Gilmar <----
+                        
+                        using var scope = _scopeFactory.CreateScope();
+                        var orderService = scope.ServiceProvider.GetRequiredService<IOrderService>();
 
-                        // primeiro tenho que pegar o Order do banco
+                        var order = await orderService.GetById(paymentProcessed.OrderId);                        
 
-                        // depois atualizo o PaymentStatus
+                        OrderUpdateDto orderUpdate = new OrderUpdateDto();
 
-                        // depios grava no banco o catalog
-                        /*using var scope = _scopeFactory.CreateScope();
-                        var catalogService = scope.ServiceProvider.GetRequiredService<ICatalogService>();
+                        orderUpdate.OrderDate = order.OrderDate;
+                        orderUpdate.UserId = order.UserId;
+                        orderUpdate.GameId = order.GameId;
+                        orderUpdate.Price = order.Price;
+                        orderUpdate.PaymentStatus = paymentProcessed.PaymentStatus; // pega o paymentStatus que veio na mensagem do rabbitMQ
+                        orderUpdate.CardName = order.CardName;
+                        orderUpdate.CardNumber = order.CardNumber;
+                        orderUpdate.ExpirationDate = order.ExpirationDate;
+                        orderUpdate.Cvv = order.Cvv;
 
-                        await catalogService.Create(paymentProcessed);*/
-
-
+                        await orderService.Update(paymentProcessed.OrderId, orderUpdate);
 
                         Console.WriteLine("✅ Retorno do pagamento processado com sucesso!\n");
 
