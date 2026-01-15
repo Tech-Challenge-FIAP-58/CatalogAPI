@@ -1,7 +1,9 @@
 <Solution>
-  <Project Path="FCG.Core/FCG.Core.csproj" />
-  <Project Path="FIAP.FCG.CATALOG.Application/FIAP.FCG.CATALOG.Application.csproj" Id="4c58220d-e325-40df-a09a-e2e162bdda6a" />
-  <Project Path="FIAP.FCG.CATALOG.Core/FIAP.FCG.CATALOG.Core.csproj" />
-  <Project Path="FIAP.FCG.CATALOG.Infra/FIAP.FCG.CATALOG.Infra.csproj" />
-  <Project Path="FIAP.FCG.CATALOG.WebApi/FIAP.FCG.CATALOG.WebApi.csproj" />
+  <Folder Name="/src/">
+    <Project Path="src/FCG.Application/FCG.Application.csproj" Id="4c58220d-e325-40df-a09a-e2e162bdda6a" />
+    <Project Path="src/FCG.Core.Core/FCG.Core.Core.csproj" />
+    <Project Path="src/FCG.Core/FCG.Core.csproj" />
+    <Project Path="src/FCG.Infra/FCG.Infra.csproj" />
+    <Project Path="src/FCG.WebApi/FCG.WebApi.csproj" />
+  </Folder>
 </Solution>
