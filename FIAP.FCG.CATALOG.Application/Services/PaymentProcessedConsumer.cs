@@ -81,6 +81,7 @@ namespace FIAP.FCG.CATALOG.Application.Services
                         
                         using var scope = _scopeFactory.CreateScope();
                         var orderService = scope.ServiceProvider.GetRequiredService<IOrderService>();
+                        var catalogService = scope.ServiceProvider.GetRequiredService<ICatalogService>();
 
                         var order = await orderService.GetById(paymentProcessed.orderId);                        
 
@@ -120,9 +121,23 @@ namespace FIAP.FCG.CATALOG.Application.Services
                         orderUpdate.ExpirationDate = order.ExpirationDate;
                         orderUpdate.Cvv = order.Cvv;
 
+                        // atualiza o pedido com o status do pagamento
                         await orderService.Update(paymentProcessed.orderId, orderUpdate);
 
-                        Console.WriteLine("✅ Retorno do pagamento processado com sucesso!\n");
+                        CatalogRegisterDto catalogRegisterDto = new CatalogRegisterDto();
+                        catalogRegisterDto.UserId = order.UserId;
+                        catalogRegisterDto.GameId = order.GameId;
+                        catalogRegisterDto.Price = order.Price;
+
+                        if(paymentProcessed.status == 2) // Paid
+                        { 
+                            await catalogService.Create(catalogRegisterDto);
+                            Console.WriteLine("✅ Retorno do pagamento processado com sucesso!\n");
+                        }
+                        else
+                        {
+                            Console.WriteLine("✅ Pagamento " + status + "\n");
+                        }                        
 
                         // ✅ CONFIRMA para o RabbitMQ
                         await channel.BasicAckAsync(ea.DeliveryTag, false); // chat recomendou
