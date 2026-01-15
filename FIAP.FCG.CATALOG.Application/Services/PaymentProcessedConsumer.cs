@@ -74,29 +74,53 @@ namespace FIAP.FCG.CATALOG.Application.Services
 
                         Console.WriteLine("====================================");
                         Console.WriteLine("📦 Processamento de pagamento recebido:");
-                        Console.WriteLine($"🆔 OrderId.........: {paymentProcessed.OrderId}");
-                        Console.WriteLine($"👤 PaymentStatus...: {paymentProcessed.PaymentStatus}");
+                        Console.WriteLine($"🆔 OrderId.........: {paymentProcessed.orderId}");
+                        Console.WriteLine($"👤 PaymentStatus...: {paymentProcessed.status}");
                         Console.WriteLine("====================================");
 
                         
                         using var scope = _scopeFactory.CreateScope();
                         var orderService = scope.ServiceProvider.GetRequiredService<IOrderService>();
 
-                        var order = await orderService.GetById(paymentProcessed.OrderId);                        
+                        var order = await orderService.GetById(paymentProcessed.orderId);                        
 
                         OrderUpdateDto orderUpdate = new OrderUpdateDto();
+
+                        string status = "";
+
+                        switch (paymentProcessed.status)
+                        {
+                            case 1:
+                                status = "Authorized";
+                                break;
+                            case 2:
+                                status = "Paid";
+                                break; 
+                            case 3:
+                                status = "Decline";
+                                break;
+                            case 4:
+                                status = "Refunded";
+                                break;
+                            case 5:
+                                status = "Cancelled";
+                                break;
+                            default: // Executado se nenhuma das opções acima corresponder
+                                status = "Opção Inválida"; ;
+                                break;
+                        }
 
                         orderUpdate.OrderDate = order.OrderDate;
                         orderUpdate.UserId = order.UserId;
                         orderUpdate.GameId = order.GameId;
                         orderUpdate.Price = order.Price;
-                        orderUpdate.PaymentStatus = paymentProcessed.PaymentStatus; // pega o paymentStatus que veio na mensagem do rabbitMQ
+                        orderUpdate.PaymentStatus = status; // pega o paymentStatus que veio na mensagem do rabbitMQ
                         orderUpdate.CardName = order.CardName;
                         orderUpdate.CardNumber = order.CardNumber;
                         orderUpdate.ExpirationDate = order.ExpirationDate;
                         orderUpdate.Cvv = order.Cvv;
 
-                        await orderService.Update(paymentProcessed.OrderId, orderUpdate);
+                        await orderService.Update(paymentProcessed.orderId, orderUpdate);
 
                         Console.WriteLine("✅ Retorno do pagamento processado com sucesso!\n");
 
