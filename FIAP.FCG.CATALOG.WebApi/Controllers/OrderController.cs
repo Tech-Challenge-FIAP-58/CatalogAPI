@@ -1,4 +1,6 @@
-﻿using FIAP.FCG.CATALOG.Application.Services;
+﻿using FCG.Core.Messages.Integration;
+using FIAP.FCG.CATALOG.Application.Producers;
+using FIAP.FCG.CATALOG.Application.Services;
 using FIAP.FCG.CATALOG.Core.Inputs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -6,7 +8,10 @@ using Microsoft.AspNetCore.Mvc;
 namespace FIAP.FCG.CATALOG.WebApi.Controllers
 {
     [Authorize]
-    public class OrderController(IOrderService orderService, ILogger<OrderController> logger, IRabbitMQServiceProducer rabbitMQServiceProducer) : StandardController
+    public class OrderController(IOrderService orderService, 
+        ILogger<OrderController> logger, 
+        IRabbitMQServiceProducer rabbitMQServiceProducer,
+        IOrderPlacedEventProducer orderPlacedEventProducer) : StandardController
     {
         //[Authorize(Roles = "Admin")]
         [HttpPost("RegisterOrder")]
@@ -19,21 +24,27 @@ namespace FIAP.FCG.CATALOG.WebApi.Controllers
             var orderId = await orderService.Create(register);
 
             // 2️ monta o evento
-            OrderRegisteredDto orderRegistered = new OrderRegisteredDto();
+            OrderPlacedEvent orderRegistered = MapToPayment(register);
 
-            orderRegistered.ClientId = register.UserId;
-            orderRegistered.OrderId = orderId;
-            orderRegistered.PaymentMethod = 1;
-            orderRegistered.Amount = register.Price;
-            orderRegistered.CardName = register.CardName;
-            orderRegistered.CardNumber = register.CardNumber;
-            orderRegistered.ExpirationDate = register.ExpirationDate;
-            orderRegistered.Cvv = register.Cvv;
-            
             // 3️ envia para o RabbitMQ
-            await rabbitMQServiceProducer.SendMessageAsyncObjeto(orderRegistered);
+            //await rabbitMQServiceProducer.SendMessageAsyncObjeto(orderRegistered);
+            await orderPlacedEventProducer.Send(orderRegistered);
 
             return StatusCode(StatusCodes.Status202Accepted);
+        }
+
+        private static OrderPlacedEvent MapToPayment(OrderRegisterDto message)
+        {
+            return new OrderPlacedEvent(
+                    message.UserId,
+                    message.GameId,
+                    1,
+                    message.Price,
+                    message.CardName,
+                    message.CardNumber,
+                    message.ExpirationDate,
+                    message.Cvv
+                );
         }
         /*
         [HttpGet("GetOrderById/{id:int}")]

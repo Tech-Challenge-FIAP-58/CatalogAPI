@@ -18,8 +18,8 @@ namespace FIAP.FCG.CATALOG.Application.Services
         {
             _configuration = configuration;
             _hostName = _configuration["RabbitMQ:HostName"] ?? "localhost";
-            _userName = _configuration["RabbitMQ:UserName"] ?? "admin";
-            _password = _configuration["RabbitMQ:Password"] ?? "admin123";
+            _userName = _configuration["RabbitMQ:UserName"] ?? "guest";
+            _password = _configuration["RabbitMQ:Password"] ?? "guest";
             _queueName = _configuration["RabbitMQ:QueueName"] ?? "OrderPlacedEvent";// "PaymentProcessedEvent";
         }
 

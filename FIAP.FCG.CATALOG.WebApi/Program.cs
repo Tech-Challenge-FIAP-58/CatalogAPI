@@ -1,12 +1,15 @@
 //using FIAP.FGC.USER.WebApi.Middlewares;
 //using Microsoft.AspNetCore.Authentication.JwtBearer;
 using AutoMapper;
+using FCG.Core.Messages.Integration;
+using FIAP.FCG.CATALOG.Application.Producers;
 using FIAP.FCG.CATALOG.Application.Services;
 using FIAP.FCG.CATALOG.Infra.Context;
 using FIAP.FCG.CATALOG.Infra.Mapping;
 
 //using FIAP.FGC.USER.Infra.Mapping;
 using FIAP.FCG.CATALOG.Infra.Repository;
+using FIAP.FCG.CATALOG.WebApi.Settings;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
@@ -42,6 +45,8 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseLazyLoadingProxies();
 }, ServiceLifetime.Scoped);
 
+builder.InitilizeRetrySettings();
+builder.AddMassTransitSettings();
 
 // repositório de banco de dados
 builder.Services.AddScoped<ICatalogRepository, CatalogRepository>(); 
@@ -55,12 +60,10 @@ builder.Services.AddScoped<IOrderService, OrderService>();
 
 // producer da fila OrderPlacedEvent
 builder.Services.AddScoped<IRabbitMQServiceProducer, RabbitMQServiceProducer>();
+builder.Services.AddScoped<IOrderPlacedEventProducer, OrderPlacedEventProducer>();
 
 // consumidor da fila PaymentProcessedEvent
 builder.Services.AddHostedService<PaymentProcessedConsumer>(); 
-
-
-
 
 var app = builder.Build();
 
