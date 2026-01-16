@@ -54,11 +54,11 @@ builder.Services.AddScoped<IGameService, GameService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 
 // producer da fila OrderPlacedEvent
-builder.Services.AddScoped<IRabbitMQServiceProducer, RabbitMQServiceProducer>();
+//builder.Services.AddScoped<IRabbitMQServiceProducer, RabbitMQServiceProducer>();
 builder.Services.AddScoped<IOrderPlacedEventProducer, OrderPlacedEventProducer>();
 
 // consumidor da fila PaymentProcessedEvent
-builder.Services.AddHostedService<PaymentProcessedConsumer>();
+//builder.Services.AddHostedService<PaymentProcessedConsumer>();
 
 var app = builder.Build();
 

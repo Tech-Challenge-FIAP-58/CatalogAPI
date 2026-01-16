@@ -38,8 +38,6 @@ namespace FCG.WebApi.Settings
                 });
             });
 
-            builder.Services.AddMassTransitHostedService();
-
             return builder;
         }
     }

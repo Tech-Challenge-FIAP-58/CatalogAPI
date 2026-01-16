@@ -10,7 +10,7 @@ namespace FCG.WebApi.Controllers
     [Authorize]
     public class OrderController(IOrderService orderService,
         ILogger<OrderController> logger,
-        IRabbitMQServiceProducer rabbitMQServiceProducer,
+        //IRabbitMQServiceProducer rabbitMQServiceProducer,
         IOrderPlacedEventProducer orderPlacedEventProducer) : StandardController
     {
         //[Authorize(Roles = "Admin")]
