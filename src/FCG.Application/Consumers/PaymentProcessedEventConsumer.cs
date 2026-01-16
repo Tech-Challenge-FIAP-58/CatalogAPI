@@ -12,59 +12,57 @@ namespace FCG.Application.Consumers
 
         private readonly IServiceScopeFactory _scopeFactory;
 
-        public PaymentProcessedEventConsumer(IServiceScopeFactory scopeFactory)
+        private readonly IOrderService _orderService;
+        private readonly ICatalogService _catalogService;
+
+        public PaymentProcessedEventConsumer(IOrderService orderService,ICatalogService catalogService)
         {
-            _scopeFactory = scopeFactory;
+            _orderService = orderService;
+            _catalogService = catalogService;
         }
 
         public async Task Consume(ConsumeContext<PaymentProcessedEvent> context)
         {
-            Console.WriteLine($"Payment processed for OrderId: {context.Message.OrderId}, PaymentId: {context.Message.PaymentId}, Amount: {context.Message.Amount}, Status: {context.Message.Status}, Reason: {context.Message.Reason}");
+            Console.WriteLine(
+                $"Payment processed for OrderId: {context.Message.OrderId}"
+            );
 
+            var order = await _orderService.GetById(context.Message.OrderId);
 
-            using var scope = _scopeFactory.CreateScope();
-            var orderService = scope.ServiceProvider.GetRequiredService<IOrderService>();
-            var catalogService = scope.ServiceProvider.GetRequiredService<ICatalogService>();
+            var status = context.Message.Status == PaymentResultStatus.Approved
+                ? "Approved"
+                : "Denied";
 
-            var order = await orderService.GetById(context.Message.OrderId);
+            var orderUpdate = new OrderUpdateDto
+            {
+                OrderDate = order.OrderDate,
+                UserId = order.UserId,
+                GameId = order.GameId,
+                Price = order.Price,
+                PaymentStatus = status,
+                CardName = order.CardName,
+                CardNumber = order.CardNumber,
+                ExpirationDate = order.ExpirationDate,
+                Cvv = order.Cvv
+            };
 
-            OrderUpdateDto orderUpdate = new OrderUpdateDto();
-
-            string status = "";
+            await _orderService.Update(context.Message.OrderId, orderUpdate);
 
             if (context.Message.Status == PaymentResultStatus.Approved)
-                status = "Approved";
-            else
-                status = "Denied";
-
-            
-            orderUpdate.OrderDate = order.OrderDate;
-            orderUpdate.UserId = order.UserId;
-            orderUpdate.GameId = order.GameId;
-            orderUpdate.Price = order.Price;
-            orderUpdate.PaymentStatus = status; // pega o paymentStatus que veio na mensagem do rabbitMQ
-            orderUpdate.CardName = order.CardName;
-            orderUpdate.CardNumber = order.CardNumber;
-            orderUpdate.ExpirationDate = order.ExpirationDate;
-            orderUpdate.Cvv = order.Cvv;
-
-            // atualiza o pedido com o status do pagamento
-            await orderService.Update(context.Message.OrderId, orderUpdate);
-
-            CatalogRegisterDto catalogRegisterDto = new CatalogRegisterDto();
-            catalogRegisterDto.UserId = order.UserId;
-            catalogRegisterDto.GameId = order.GameId;
-            catalogRegisterDto.Price = order.Price;
-
-            if (context.Message.Status == PaymentResultStatus.Approved) // Approved
             {
-                // insere o jogo no cadastro do cliente
-                await catalogService.Create(catalogRegisterDto);
-                Console.WriteLine("✅ Retorno do pagamento processado com sucesso!\n");
+                var catalogRegister = new CatalogRegisterDto
+                {
+                    UserId = order.UserId,
+                    GameId = order.GameId,
+                    Price = order.Price
+                };
+
+                await _catalogService.Create(catalogRegister);
+                Console.WriteLine("✅ Pagamento aprovado, jogo adicionado ao catálogo");
             }
             else
             {
-                Console.WriteLine("✅ Pagamento " + status + "\n");
+                Console.WriteLine("❌ Pagamento negado");
             }
         }
 
