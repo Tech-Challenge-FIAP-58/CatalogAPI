@@ -4,7 +4,7 @@ public sealed record class OrderRegisterDto
 {
     public required DateTime OrderDate { get; set; }
     public required int UserId { get; set; }
-    public required int GameId { get; set; }
+    public required int OrderId { get; set; }
     public required decimal Price { get; set; }
     public required string PaymentStatus { get; set; }
     public required string CardName { get; set; }
