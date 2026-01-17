@@ -9,11 +9,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace FIAP.FCG.CATALOG.Infra.Migrations
+namespace FCG.Infra.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260113001852_M3")]
-    partial class M3
+    [Migration("20260117202102_FirstMigration")]
+    partial class FirstMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -28,38 +28,34 @@ namespace FIAP.FCG.CATALOG.Infra.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("FIAP.FCG.CATALOG.Core.Models.Catalog", b =>
+            modelBuilder.Entity("FCG.Core.Core.Models.Catalog", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("INT");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreatedAtUtc")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("GameId")
-                        .HasColumnType("INT");
+                    b.Property<Guid>("GameId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<decimal>("Price")
                         .HasColumnType("DECIMAL(18,2)");
 
-                    b.Property<int>("UserId")
-                        .HasColumnType("INT");
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
                     b.ToTable("Catalog", (string)null);
                 });
 
-            modelBuilder.Entity("FIAP.FCG.CATALOG.Core.Models.Game", b =>
+            modelBuilder.Entity("FCG.Core.Core.Models.Game", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("INT");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreatedAtUtc")
                         .HasColumnType("datetime2");
@@ -88,13 +84,11 @@ namespace FIAP.FCG.CATALOG.Infra.Migrations
                     b.ToTable("Game", (string)null);
                 });
 
-            modelBuilder.Entity("FIAP.FCG.CATALOG.Core.Models.Order", b =>
+            modelBuilder.Entity("FCG.Core.Core.Models.Order", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("INT");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("CardName")
                         .IsRequired()
@@ -115,8 +109,8 @@ namespace FIAP.FCG.CATALOG.Infra.Migrations
                         .IsRequired()
                         .HasColumnType("VARCHAR(100)");
 
-                    b.Property<int>("GameId")
-                        .HasColumnType("INT");
+                    b.Property<Guid>("GameId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("OrderDate")
                         .HasColumnType("DATETIME");
@@ -128,8 +122,8 @@ namespace FIAP.FCG.CATALOG.Infra.Migrations
                     b.Property<decimal>("Price")
                         .HasColumnType("DECIMAL(12,2)");
 
-                    b.Property<int>("UserId")
-                        .HasColumnType("INT");
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 

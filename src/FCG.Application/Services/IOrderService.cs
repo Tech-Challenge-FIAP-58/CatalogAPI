@@ -5,9 +5,9 @@ namespace FCG.Application.Services
 {
     public interface IOrderService
     {
-        Task<int> Create(OrderRegisterDto orderRegisterDto);
-        Task<OrderResponseDto?> GetById(int id);
-        Task<IApiResponse<bool>> Update(int id, OrderUpdateDto update);
+        Task<Guid> Create(OrderRegisterDto orderRegisterDto);
+        Task<OrderResponseDto?> GetById(Guid id);
+        Task<IApiResponse<bool>> Update(Guid id, OrderUpdateDto update);
 
 
     }

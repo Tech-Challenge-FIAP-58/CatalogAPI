@@ -8,17 +8,17 @@ namespace FCG.Application.Services
     {
         private readonly IOrderRepository _repository = repository;
 
-        public async Task<int> Create(OrderRegisterDto orderRegisterDto)
+        public async Task<Guid> Create(OrderRegisterDto orderRegisterDto)
         {
             return await _repository.Create(orderRegisterDto);
         }
 
-        public async Task<OrderResponseDto?> GetById(int id)
+        public async Task<OrderResponseDto?> GetById(Guid id)
         {
             return await _repository.GetById(id);
         }
 
-        public async Task<IApiResponse<bool>> Update(int id, OrderUpdateDto updateDto)
+        public async Task<IApiResponse<bool>> Update(Guid id, OrderUpdateDto updateDto)
         {
             var ok = await _repository.Update(id, updateDto);
             return ok

@@ -18,7 +18,7 @@ namespace FCG.WebApi.Controllers
             return Ok("deu certo");
 		}
 
-		[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         [HttpPost("RegisterOrder")]
         public async Task<IActionResult> Post([FromBody] OrderRegisterDto register)
         {

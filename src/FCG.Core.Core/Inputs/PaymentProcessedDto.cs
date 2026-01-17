@@ -3,8 +3,8 @@
     public class PaymentProcessedDto
     {
 
-        public int orderId { get; set; }
-        public int paymentId { get; set; }
+        public Guid orderId { get; set; }
+        public Guid paymentId { get; set; }
         public decimal amount { get; set; }
         public int status { get; set; }
 

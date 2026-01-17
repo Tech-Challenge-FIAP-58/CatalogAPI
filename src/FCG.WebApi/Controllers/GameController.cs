@@ -25,23 +25,23 @@ namespace FCG.WebApi.Controllers
 		}
 
         [HttpGet("GetGameById{id}")]
-        public Task<IActionResult> GetById(int id)
+        public Task<IActionResult> GetById(Guid id)
         {
 			logger.LogInformation("GET - Listar jogo por ID: {Id}", id);
 			return TryMethodAsync(() => service.GetById(id), logger);
 		}
 
         [Authorize(Roles = "Admin")]
-        [HttpPut("UpdateGame/{id:int}")]
-        public Task<IActionResult> Put(int id, [FromBody] GameUpdateDto update)
+        [HttpPut("UpdateGame/{id:guid}")]
+        public Task<IActionResult> Put(Guid id, [FromBody] GameUpdateDto update)
         {
             logger.LogInformation("PUT - Atualizar jogo com ID: {Id}", id);
             return TryMethodAsync(() => service.Update(id, update), logger);
         }
 
         [Authorize(Roles = "Admin")]
-        [HttpDelete("DeleteGame/{id:int}")]
-        public Task<IActionResult> Delete(int id)
+        [HttpDelete("DeleteGame/{id:guid}")]
+        public Task<IActionResult> Delete(Guid id)
         {
             logger.LogInformation("DELETE - Excluir jogo com ID: {Id}", id);
             return TryMethodAsync(() => service.Remove(id), logger);

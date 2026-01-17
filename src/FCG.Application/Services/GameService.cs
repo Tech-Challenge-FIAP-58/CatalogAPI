@@ -10,7 +10,7 @@ namespace FCG.Application.Services
     {
         private readonly IGameRepository _repository = repository;
 
-        public async Task<IApiResponse<int>> Create(GameRegisterDto gameRegisterDto)
+        public async Task<IApiResponse<Guid>> Create(GameRegisterDto gameRegisterDto)
         {
             try
             {
@@ -18,14 +18,14 @@ namespace FCG.Application.Services
             }
             catch (ValidationException ex)
             {
-                return BadRequest<int>($"Dados de jogo inválidos: {ex.Message}");
+                return BadRequest<Guid>($"Dados de jogo inválidos: {ex.Message}");
             }
 
             var id = await _repository.Create(gameRegisterDto);
             return Created(id, "Jogo registrado com sucesso.");
         }
 
-        public async Task<IApiResponse<bool>> Remove(int id)
+        public async Task<IApiResponse<bool>> Remove(Guid id)
         {
             var removed = await _repository.Remove(id);
             return removed
@@ -35,7 +35,7 @@ namespace FCG.Application.Services
 
         public async Task<IApiResponse<IEnumerable<GameResponseDto>>> GetAll() => Ok(await _repository.GetAll());
 
-        public async Task<IApiResponse<GameResponseDto?>> GetById(int id)
+        public async Task<IApiResponse<GameResponseDto?>> GetById(Guid id)
         {
             var dto = await _repository.GetById(id);
             return dto is null
@@ -43,7 +43,7 @@ namespace FCG.Application.Services
                 : Ok<GameResponseDto?>(dto);
         }
 
-        public async Task<IApiResponse<bool>> Update(int id, GameUpdateDto updateDto)
+        public async Task<IApiResponse<bool>> Update(Guid id, GameUpdateDto updateDto)
         {
             var ok = await _repository.Update(id, updateDto);
             return ok

@@ -15,7 +15,7 @@ namespace FCG.Infra.Repository
             return [.. catalogs.Select(u => _mapper.Map<CatalogResponseDto>(u))];
         }
 
-        public async Task<CatalogResponseDto?> GetByUserId(int id)
+        public async Task<CatalogResponseDto?> GetByUserId(Guid id)
         {
             var catalog = await Get(id);
             return catalog is null ? null : _mapper.Map<CatalogResponseDto>(catalog);

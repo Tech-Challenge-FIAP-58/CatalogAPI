@@ -14,7 +14,7 @@ namespace FCG.Application.Services
             return Ok(list);
         }
 
-        public async Task<IApiResponse<CatalogResponseDto?>> GetByUserId(int id)
+        public async Task<IApiResponse<CatalogResponseDto?>> GetByUserId(Guid id)
         {
             var dto = await _catalogRepository.GetByUserId(id);
             return dto is null
