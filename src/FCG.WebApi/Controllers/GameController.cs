@@ -8,7 +8,7 @@ namespace FCG.WebApi.Controllers
     [Authorize]
     public class GameController(IGameService service, ILogger<GameController> logger) : StandardController
     {
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         [HttpPost("RegisterGame")]
         [AllowAnonymous]
         public Task<IActionResult> Post([FromBody] GameRegisterDto register)
@@ -18,35 +18,18 @@ namespace FCG.WebApi.Controllers
         }
 
         [HttpGet("GetAllGames")]
-        [AllowAnonymous]
         public Task<IActionResult> Get()
         {
-            try
-            {
-                logger.LogInformation("GET - Listar jogos");
-                return TryMethodAsync(() => service.GetAll(), logger);
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Erro ao listar jogos");
-                throw;
-            }
-        }
+			logger.LogInformation("GET - Listar jogos");
+			return TryMethodAsync(() => service.GetAll(), logger);
+		}
 
         [HttpGet("GetGameById{id}")]
         public Task<IActionResult> GetById(int id)
         {
-            try
-            {
-                logger.LogInformation("GET - Listar jogo por ID: {Id}", id);
-                return TryMethodAsync(() => service.GetById(id), logger);
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Erro ao listar jogo por ID: {Id}", id);
-                throw;
-            }
-        }
+			logger.LogInformation("GET - Listar jogo por ID: {Id}", id);
+			return TryMethodAsync(() => service.GetById(id), logger);
+		}
 
         [Authorize(Roles = "Admin")]
         [HttpPut("UpdateGame/{id:int}")]

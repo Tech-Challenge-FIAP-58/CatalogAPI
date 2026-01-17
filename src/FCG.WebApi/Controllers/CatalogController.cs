@@ -5,10 +5,10 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace FCG.WebApi.Controllers
 {
-    [AllowAnonymous]
-    public class CatalogController(ICatalogService service, ILogger<CatalogController> logger, IRabbitMQServiceProducer rabbitMQServiceProducer) : StandardController
+    public class CatalogController(ILogger<CatalogController> logger, IRabbitMQServiceProducer rabbitMQServiceProducer) : StandardController
     {
         [HttpPost]
+        [Authorize]
         [ProducesResponseType(typeof(string), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]

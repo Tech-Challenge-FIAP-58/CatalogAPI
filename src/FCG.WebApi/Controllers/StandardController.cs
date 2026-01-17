@@ -6,7 +6,7 @@ using System.Net;
 
 namespace FCG.WebApi.Controllers
 {
-    [ApiController]
+	[ApiController]
     [Route("v1/[controller]")]
     public class StandardController : ControllerBase
     {

@@ -7,15 +7,19 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace FCG.WebApi.Controllers
 {
-    [Authorize]
     public class OrderController(IOrderService orderService,
         ILogger<OrderController> logger,
-        //IRabbitMQServiceProducer rabbitMQServiceProducer,
         IOrderPlacedEventProducer orderPlacedEventProducer) : StandardController
     {
-        //[Authorize(Roles = "Admin")]
+        [Authorize]
+        [HttpGet("teste")]
+		public async Task<IActionResult> Get()
+        {
+            return Ok("deu certo");
+		}
+
+		[Authorize(Roles = "Admin")]
         [HttpPost("RegisterOrder")]
-        [AllowAnonymous]
         public async Task<IActionResult> Post([FromBody] OrderRegisterDto register)
         {
             logger.LogInformation("POST - Criar Pedido");
@@ -27,7 +31,6 @@ namespace FCG.WebApi.Controllers
             OrderPlacedEvent orderRegistered = MapToPayment(register);
 
             // 3️ envia para o RabbitMQ
-            //await rabbitMQServiceProducer.SendMessageAsyncObjeto(orderRegistered);
             await orderPlacedEventProducer.Send(orderRegistered);
 
             return StatusCode(StatusCodes.Status202Accepted);
@@ -46,40 +49,5 @@ namespace FCG.WebApi.Controllers
                     message.Cvv
                 );
         }
-        /*
-        [HttpGet("GetOrderById/{id:int}")]
-        [AllowAnonymous]
-        public Task<IActionResult> GetById(int id)
-        {
-            logger.LogInformation("GET - Listar pedido por ID: {Id}", id);
-            return TryMethodAsync(() => orderService.GetById(id), logger);
-        }
-
-        [HttpGet("GetOrderById{id}")]
-        [AllowAnonymous]
-        public Task<IActionResult> GetById(int id)
-        {
-
-            try
-            {
-                logger.LogInformation("GET - Listar pedido por ID: {Id}", id);
-                return TryMethodAsync(() => orderService.GetById(id), logger);
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Erro ao listar pedido por ID: {Id}", id);
-                throw;
-            }
-        }
-
-        //[Authorize(Roles = "Admin")]
-        [HttpPut("UpdateOrder/{id:int}")]
-        [AllowAnonymous]
-        public Task<IActionResult> Put(int id, [FromBody] OrderUpdateDto update)
-        {
-            logger.LogInformation("PUT - Atualizar pedido com ID: {Id}", id);
-            return TryMethodAsync(() => orderService.Update(id, update), logger);
-        }*/
-
     }
 }
