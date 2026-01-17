@@ -5,6 +5,7 @@ using FCG.Application.Services;
 using FCG.Infra.Context;
 using FCG.Infra.Mapping;
 using FCG.Infra.Repository;
+using FCG.Payments.Configuration;
 using FCG.WebApi.Settings;
 
 
@@ -40,6 +41,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseLazyLoadingProxies();
 }, ServiceLifetime.Scoped);
 
+builder.AddMessageBusConfiguration();
 builder.InitilizeRetrySettings();
 builder.AddMassTransitSettings();
 
