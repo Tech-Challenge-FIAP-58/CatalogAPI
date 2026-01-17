@@ -114,6 +114,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.MapGet("/health", () => Results.Ok("Healthy")).ExcludeFromDescription();
+
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
