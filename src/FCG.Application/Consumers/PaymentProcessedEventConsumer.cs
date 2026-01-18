@@ -2,15 +2,11 @@
 using FCG.Core.Core.Inputs;
 using FCG.Core.Messages.Integration;
 using MassTransit;
-using MassTransit.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace FCG.Application.Consumers
 {
     public class PaymentProcessedEventConsumer : IConsumer<PaymentProcessedEvent>
     {
-
-        private readonly IServiceScopeFactory _scopeFactory;
 
         private readonly IOrderService _orderService;
         private readonly ICatalogService _catalogService;
@@ -65,6 +61,5 @@ namespace FCG.Application.Consumers
                 Console.WriteLine("❌ Pagamento negado");
             }
         }
-
     }
 }
