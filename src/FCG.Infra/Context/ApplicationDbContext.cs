@@ -4,38 +4,14 @@ using Microsoft.Extensions.Configuration;
 
 namespace FCG.Infra.Context
 {
-    public class ApplicationDbContext : DbContext
+    public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : DbContext(options)
     {
-        private readonly string _connectinoString;
-
-        public ApplicationDbContext()
-        {
-            // precisa comentar esse código para usar o Migrations
-
-            IConfiguration configuration = new ConfigurationBuilder()
-                .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
-                .AddJsonFile("appsettings.json")
-                .Build();
-
-            _connectinoString = configuration.GetConnectionString("Core");
-        }
-
-        public ApplicationDbContext(string connectionString)
-        {
-            _connectinoString = connectionString;
-        }
-
         public DbSet<Catalog> Catalogs { get; set; }
-
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            optionsBuilder.UseSqlServer(_connectinoString);
-            optionsBuilder.UseLazyLoadingProxies();
-        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
+            base.OnModelCreating(modelBuilder);
         }
     }
 }

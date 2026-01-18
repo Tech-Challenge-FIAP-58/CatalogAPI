@@ -11,14 +11,7 @@ namespace FCG.WebApi.Controllers
         ILogger<OrderController> logger,
         IOrderPlacedEventProducer orderPlacedEventProducer) : StandardController
     {
-        [Authorize]
-        [HttpGet("teste")]
-		public async Task<IActionResult> Get()
-        {
-            return Ok("deu certo");
-		}
-
-        [Authorize(Roles = "Admin")]
+		[Authorize(Roles = "Admin")]
         [HttpPost("RegisterOrder")]
         public async Task<IActionResult> Post([FromBody] OrderRegisterDto register)
         {
@@ -26,11 +19,14 @@ namespace FCG.WebApi.Controllers
 
             // 1️ grava no banco e PEGA o ID
             var orderId = await orderService.Create(register);
+            
+            // 2 cria ordem
+            register.OrderId = orderId;
 
-            // 2️ monta o evento
-            OrderPlacedEvent orderRegistered = MapToPayment(register);
+			// 3 monta o evento
+			OrderPlacedEvent orderRegistered = MapToPayment(register);
 
-            // 3️ envia para o RabbitMQ
+            // 4 envia evento
             await orderPlacedEventProducer.Send(orderRegistered);
 
             return StatusCode(StatusCodes.Status202Accepted);
@@ -40,7 +36,7 @@ namespace FCG.WebApi.Controllers
         {
             return new OrderPlacedEvent(
                     message.UserId,
-                    message.GameId,
+                    message.OrderId,
                     1,
                     message.Price,
                     message.CardName,
