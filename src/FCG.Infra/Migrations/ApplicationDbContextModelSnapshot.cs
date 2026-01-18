@@ -40,8 +40,8 @@ namespace FCG.Infra.Migrations
                     b.Property<decimal>("Price")
                         .HasColumnType("DECIMAL(18,2)");
 
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
