@@ -1,6 +1,4 @@
-﻿using FCG.Core.Objects;
-
-namespace FCG.WebApi.Settings;
+﻿namespace FCG.WebApi.Settings;
 
 public static class RetrySettingsInit
 {

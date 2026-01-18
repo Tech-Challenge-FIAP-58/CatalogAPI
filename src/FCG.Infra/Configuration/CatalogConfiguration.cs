@@ -1,4 +1,4 @@
-﻿using FCG.Core.Core.Models;
+﻿using FCG.Core.Core.Models.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 

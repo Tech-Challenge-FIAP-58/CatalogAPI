@@ -1,6 +1,6 @@
-﻿namespace FCG.Core.Core.Models
+﻿namespace FCG.Core.Core.Models.Entities
 {
-    public class Game : EntityBase
+    public class Game : Entity
     {
         public required string Name { get; set; }
         public required string Platform { get; set; }

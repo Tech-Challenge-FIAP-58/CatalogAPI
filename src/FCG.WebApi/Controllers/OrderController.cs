@@ -1,7 +1,7 @@
 ﻿using FCG.Application.Producers;
 using FCG.Application.Services;
+using FCG.Core.Contracts;
 using FCG.Core.Core.Inputs;
-using FCG.Core.Messages.Integration;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

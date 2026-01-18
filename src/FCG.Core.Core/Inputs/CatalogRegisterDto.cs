@@ -5,7 +5,7 @@ namespace FCG.Core.Core.Inputs
     public class CatalogRegisterDto
     {
         [Required]
-        public Guid UserId { get; set; } = default!;
+        public int UserId { get; set; } = default!;
 
         [Required]
         public Guid GameId { get; set; } = default!;

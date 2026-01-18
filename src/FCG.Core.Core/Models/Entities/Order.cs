@@ -1,9 +1,9 @@
-﻿namespace FCG.Core.Core.Models
+﻿namespace FCG.Core.Core.Models.Entities
 {
-    public class Order : EntityBase
+    public class Order : Entity
     {
         public required DateTime OrderDate { get; set; }
-        public required Guid UserId { get; set; }
+        public required int UserId { get; set; }
         public required Guid GameId { get; set; }
         public required decimal Price { get; set; }
         public required string PaymentStatus { get; set; }

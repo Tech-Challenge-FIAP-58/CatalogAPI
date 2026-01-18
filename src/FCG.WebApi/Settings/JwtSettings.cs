@@ -1,7 +1,6 @@
-﻿
-namespace FCG.Core
+﻿namespace FCG.WebApi.Settings
 {
-	public class JwtConfigurations
+	public class JwtSettings
 	{
 		public required string Key { get; set; }
 		public required string Issuer { get; set; }

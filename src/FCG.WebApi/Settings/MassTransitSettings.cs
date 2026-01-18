@@ -1,6 +1,4 @@
 ﻿using FCG.Application.Consumers;
-using FCG.Core.Objects;
-using FCG.WebApi.Settings.Dtos;
 using MassTransit;
 using Microsoft.Extensions.Options;
 

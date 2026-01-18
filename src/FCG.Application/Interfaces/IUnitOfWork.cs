@@ -1,4 +1,4 @@
-﻿namespace FCG.Core.Data.Interfaces;
+﻿namespace FCG.Application.Interfaces;
 
 public interface IUnitOfWork
 {

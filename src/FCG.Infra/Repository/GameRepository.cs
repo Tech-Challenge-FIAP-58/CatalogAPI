@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using FCG.Core.Core.Inputs;
-using FCG.Core.Core.Models;
+using FCG.Core.Core.Models.Entities;
 using FCG.Core.Core.Validation;
 using FCG.Infra.Context;
 using Microsoft.EntityFrameworkCore;

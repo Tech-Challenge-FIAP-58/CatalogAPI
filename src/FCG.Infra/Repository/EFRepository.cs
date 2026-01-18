@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FCG.Infra.Repository
 {
-    public class EFRepository<T> : IRepository<T> where T : EntityBase
+    public class EFRepository<T> : IRepository<T> where T : Entity
     {
         protected ApplicationDbContext _context;
         protected DbSet<T> _dbSet;

@@ -1,4 +1,4 @@
-﻿using FCG.Core.Messages.Integration;
+﻿using FCG.Core.Contracts;
 using MassTransit;
 
 namespace FCG.Application.Producers;

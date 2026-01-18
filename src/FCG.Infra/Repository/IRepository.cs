@@ -2,7 +2,7 @@
 
 namespace FCG.Infra.Repository
 {
-    public interface IRepository<T> where T : EntityBase
+    public interface IRepository<T> where T : Entity
     {
         Task<IEnumerable<T>> Get();
         Task<T?> Get(Guid id);

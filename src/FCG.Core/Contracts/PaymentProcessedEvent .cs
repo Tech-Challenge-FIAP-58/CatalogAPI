@@ -1,6 +1,6 @@
-﻿namespace FCG.Core.Messages.Integration;
+﻿namespace FCG.Core.Contracts;
 
-public class PaymentProcessedEvent : IntegrationEvent
+public class PaymentProcessedEvent
 {
     public Guid OrderId { get; }
     public Guid PaymentId { get; }

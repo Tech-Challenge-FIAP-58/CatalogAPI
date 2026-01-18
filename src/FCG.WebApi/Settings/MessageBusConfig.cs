@@ -1,6 +1,4 @@
-﻿using FCG.WebApi.Settings.Dtos;
-
-namespace FCG.Payments.Configuration
+﻿namespace FCG.WebApi.Settings
 {
     public static class MessageBusConfig
     {

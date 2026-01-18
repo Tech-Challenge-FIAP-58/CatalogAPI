@@ -1,8 +1,8 @@
-﻿using FCG.Core.Messages;
+﻿using FCG.Core.Core.Models.Entities.Mediatr;
 using FluentValidation.Results;
 using MediatR;
 
-namespace FCG.Core.Mediator
+namespace FCG.Infra.Mediator
 {
     public class MediatorHandler : IMediatorHandler
     {

@@ -1,4 +1,4 @@
-﻿namespace FCG.Core.Objects
+﻿namespace FCG.WebApi.Settings
 {
     public static class RetrySettings
     {

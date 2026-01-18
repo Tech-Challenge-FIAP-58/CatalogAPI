@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using FCG.Core.Core.Inputs;
-using FCG.Core.Core.Models;
+using FCG.Core.Core.Models.Entities;
 
 namespace FCG.Infra.Mapping;
 

@@ -1,4 +1,4 @@
-﻿namespace FCG.WebApi.Settings.Dtos;
+﻿namespace FCG.WebApi.Settings;
 
 public class RabbitMqSettings
 {

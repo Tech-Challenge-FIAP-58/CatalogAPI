@@ -1,4 +1,4 @@
-﻿namespace FCG.Core.Messages
+﻿namespace FCG.Core.Core.Models.Entities.Mediatr
 {
     public abstract class Message
     {

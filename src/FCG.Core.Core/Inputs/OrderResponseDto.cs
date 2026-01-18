@@ -3,7 +3,7 @@
     public sealed record OrderResponseDto(
         Guid Id,
         DateTime OrderDate,
-        Guid UserId,
+        int UserId,
         Guid GameId,
         decimal Price,
         string PaymentStatus,
