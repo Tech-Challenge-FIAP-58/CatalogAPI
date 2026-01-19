@@ -1,0 +1,17 @@
+<Solution>
+  <Folder Name="/src/" />
+  <Folder Name="/src/0 - Domain/">
+    <Project Path="src/FCG.Catalog.Application/FCG.Catalog.Application.csproj" Id="4c58220d-e325-40df-a09a-e2e162bdda6a" />
+    <Project Path="src/FCG.Catalog.Domain/FCG.Catalog.Domain.csproj" Id="177c7c57-2cf3-422b-894e-8871b67652a7" />
+  </Folder>
+  <Folder Name="/src/1 - Core/">
+    <Project Path="src/FCG.Core/FCG.Core.csproj" />
+    <Project Path="src/FCG.Catalog.WebApi/FCG.Catalog.WebApi.csproj" />
+  </Folder>
+  <Folder Name="/src/2 - Infra/">
+    <Project Path="src/FCG.Catalog.Infra/FCG.Catalog.Infra.csproj" />
+  </Folder>
+  <Folder Name="/src/3 - Tests/">
+    <Project Path="src/FCG.Catalog.Tests/FCG.Catalog.Tests.csproj" Id="fbe806a2-6c71-46c2-98a9-2b0694df904c" />
+  </Folder>
+</Solution>
