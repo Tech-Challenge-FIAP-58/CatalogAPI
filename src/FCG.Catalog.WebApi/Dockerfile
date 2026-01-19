@@ -22,20 +22,20 @@ WORKDIR /src
 # -------------------------
 # Copia solução
 # -------------------------
-COPY FIAP.FCG.CATALOG.slnx ./
+COPY FCG.Catalog.slnx ./
 
 # -------------------------
 # Copia apenas os csproj (cache de restore)
 # -------------------------
-COPY src/FCG.WebApi/FCG.WebApi.csproj src/FCG.WebApi/
-COPY src/FCG.Application/FCG.Application.csproj src/FCG.Application/
+COPY src/FCG.Catalog.WebApi/FCG.Catalog.WebApi.csproj src/FCG.Catalog.WebApi/
+COPY src/FCG.Catalog.Application/FCG.Catalog.Application.csproj src/FCG.Catalog.Application/
 COPY src/FCG.Core/FCG.Core.csproj src/FCG.Core/
-COPY src/FCG.Infra/FCG.Infra.csproj src/FCG.Infra/
+COPY src/FCG.Catalog.Infra/FCG.Catalog.Infra.csproj src/FCG.Catalog.Infra/
 
 # -------------------------
 # Restore (projeto de entrada)
 # -------------------------
-RUN dotnet restore src/FCG.WebApi/FCG.WebApi.csproj
+RUN dotnet restore src/FCG.Catalog.WebApi/FCG.Catalog.WebApi.csproj
 
 # -------------------------
 # Copia o restante do código
@@ -45,7 +45,7 @@ COPY . .
 # -------------------------
 # Build
 # -------------------------
-RUN dotnet build src/FCG.WebApi/FCG.WebApi.csproj \
+RUN dotnet build src/FCG.Catalog.WebApi/FCG.Catalog.WebApi.csproj \
     -c $BUILD_CONFIGURATION \
     -o /app/build
 
@@ -56,7 +56,7 @@ RUN dotnet build src/FCG.WebApi/FCG.WebApi.csproj \
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
 
-RUN dotnet publish src/FCG.WebApi/FCG.WebApi.csproj \
+RUN dotnet publish src/FCG.Catalog.WebApi/FCG.Catalog.WebApi.csproj \
     -c $BUILD_CONFIGURATION \
     -o /app/publish \
     /p:UseAppHost=false
@@ -68,4 +68,4 @@ RUN dotnet publish src/FCG.WebApi/FCG.WebApi.csproj \
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "FCG.WebApi.dll"]
+ENTRYPOINT ["dotnet", "FCG.Catalog.WebApi.dll"]
