@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace FCG.Core.Core.Validation;
+namespace FCG.Catalog.Domain.Validation;
 
 public static class DtoValidator
 {

@@ -1,4 +1,4 @@
-﻿using FCG.Core.Core.Web;
+﻿using FCG.Catalog.Domain.Web;
 using System.Net;
 
 namespace FCG.Application.Services

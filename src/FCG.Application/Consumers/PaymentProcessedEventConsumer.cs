@@ -1,8 +1,7 @@
 ﻿using FCG.Application.Services;
-using FCG.Core.Core.Inputs;
+using FCG.Catalog.Domain.Inputs;
 using FCG.Core.Messages.Integration;
 using MassTransit;
-using MassTransit.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace FCG.Application.Consumers

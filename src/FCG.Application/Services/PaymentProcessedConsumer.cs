@@ -1,4 +1,4 @@
-﻿using FCG.Core.Core.Inputs;
+﻿using FCG.Catalog.Domain.Inputs;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using RabbitMQ.Client;

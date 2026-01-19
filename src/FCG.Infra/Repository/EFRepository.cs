@@ -1,4 +1,4 @@
-﻿using FCG.Core.Core.Models;
+﻿using FCG.Catalog.Domain.Models;
 using FCG.Infra.Context;
 using Microsoft.EntityFrameworkCore;
 

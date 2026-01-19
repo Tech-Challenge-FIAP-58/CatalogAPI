@@ -1,4 +1,4 @@
-﻿using FCG.Core.Core.Models;
+﻿using FCG.Catalog.Domain.Models;
 
 namespace FCG.Infra.Repository
 {

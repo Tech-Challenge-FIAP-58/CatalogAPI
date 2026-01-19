@@ -1,6 +1,6 @@
 ﻿using FCG.Application.Producers;
 using FCG.Application.Services;
-using FCG.Core.Core.Inputs;
+using FCG.Catalog.Domain.Inputs;
 using FCG.Core.Messages.Integration;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

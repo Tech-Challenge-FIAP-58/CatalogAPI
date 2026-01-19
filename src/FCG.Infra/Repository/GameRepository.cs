@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
-using FCG.Core.Core.Inputs;
-using FCG.Core.Core.Models;
-using FCG.Core.Core.Validation;
+using FCG.Catalog.Domain.Inputs;
+using FCG.Catalog.Domain.Models;
+using FCG.Catalog.Domain.Validation;
 using FCG.Infra.Context;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;

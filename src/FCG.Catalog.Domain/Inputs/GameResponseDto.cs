@@ -1,4 +1,4 @@
-﻿namespace FCG.Core.Core.Inputs
+﻿namespace FCG.Catalog.Domain.Inputs
 {
     public sealed record GameResponseDto(
         int Id,

@@ -1,5 +1,5 @@
 ﻿using FCG.Application.Services;
-using FCG.Core.Core.Inputs;
+using FCG.Catalog.Domain.Inputs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

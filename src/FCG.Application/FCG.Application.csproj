@@ -14,7 +14,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\FCG.Core.Core\FCG.Core.Core.csproj" />
     <ProjectReference Include="..\FCG.Core\FCG.Core.csproj" />
     <ProjectReference Include="..\FCG.Infra\FCG.Infra.csproj" />
   </ItemGroup>

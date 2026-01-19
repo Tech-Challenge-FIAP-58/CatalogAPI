@@ -1,4 +1,4 @@
-﻿using FCG.Core.Core.Inputs;
+﻿using FCG.Catalog.Domain.Inputs;
 
 namespace FCG.Infra.Repository
 {

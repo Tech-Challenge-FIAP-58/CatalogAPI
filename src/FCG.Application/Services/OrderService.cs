@@ -1,5 +1,5 @@
-﻿using FCG.Core.Core.Inputs;
-using FCG.Core.Core.Web;
+﻿using FCG.Catalog.Domain.Inputs;
+using FCG.Catalog.Domain.Web;
 using FCG.Infra.Repository;
 
 namespace FCG.Application.Services

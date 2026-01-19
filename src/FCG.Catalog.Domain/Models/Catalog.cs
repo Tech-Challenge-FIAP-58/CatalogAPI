@@ -1,4 +1,4 @@
-﻿namespace FCG.Core.Core.Models
+﻿namespace FCG.Catalog.Domain.Models
 {
     public class Catalog : EntityBase
     {

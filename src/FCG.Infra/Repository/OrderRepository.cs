@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
-using FCG.Core.Core.Inputs;
-using FCG.Core.Core.Models;
+using FCG.Catalog.Domain.Inputs;
+using FCG.Catalog.Domain.Models;
 using FCG.Infra.Context;
 
 namespace FCG.Infra.Repository

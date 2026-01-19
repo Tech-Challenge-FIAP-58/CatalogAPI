@@ -1,6 +1,6 @@
 ﻿using System.Net;
 
-namespace FCG.Core.Core.Web
+namespace FCG.Catalog.Domain.Web
 {
     public interface IApiResponse<TResult>
     {

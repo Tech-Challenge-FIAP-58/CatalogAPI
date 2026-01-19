@@ -1,4 +1,4 @@
-﻿using FCG.Core.Core.Web;
+﻿using FCG.Catalog.Domain.Web;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
