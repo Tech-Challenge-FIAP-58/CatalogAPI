@@ -14,8 +14,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\FCG.Catalog.Domain\FCG.Catalog.Domain.csproj" />
+    <ProjectReference Include="..\FCG.Catalog.Infra\FCG.Catalog.Infra.csproj" />
     <ProjectReference Include="..\FCG.Core\FCG.Core.csproj" />
-    <ProjectReference Include="..\FCG.Infra\FCG.Catalog.Infra.csproj" />
   </ItemGroup>
 
 </Project>

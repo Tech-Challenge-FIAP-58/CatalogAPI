@@ -22,9 +22,9 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\FCG.Application\FCG.Catalog.Application.csproj" />
+		<ProjectReference Include="..\FCG.Catalog.Application\FCG.Catalog.Application.csproj" />
 		<ProjectReference Include="..\FCG.Core\FCG.Core.csproj" />
-		<ProjectReference Include="..\FCG.Infra\FCG.Catalog.Infra.csproj" />
+		<ProjectReference Include="..\FCG.Catalog.Infra\FCG.Catalog.Infra.csproj" />
 	</ItemGroup>
 
 </Project>
