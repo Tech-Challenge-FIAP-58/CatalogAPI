@@ -1,13 +1,13 @@
 ﻿using AutoMapper;
 using FCG.Catalog.Domain.Inputs;
 
-namespace FCG.Infra.Mapping;
+namespace FCG.Catalog.Infra.Mapping;
 
 public class CatalogProfile : Profile
 {
     public CatalogProfile()
     {
-        CreateMap<CatalogRegisterDto, Catalog.Domain.Models.Catalog>();
+        CreateMap<CatalogRegisterDto, Domain.Models.Catalog>();
 
     }
 }

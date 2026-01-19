@@ -1,10 +1,10 @@
 ﻿using AutoMapper;
 using FCG.Catalog.Domain.Inputs;
-using FCG.Infra.Context;
+using FCG.Catalog.Infra.Context;
 
-namespace FCG.Infra.Repository
+namespace FCG.Catalog.Infra.Repository
 {
-    public class CatalogRepository(ApplicationDbContext context, IMapper mapper) : EFRepository<Catalog.Domain.Models.Catalog>(context), ICatalogRepository
+    public class CatalogRepository(ApplicationDbContext context, IMapper mapper) : EFRepository<Domain.Models.Catalog>(context), ICatalogRepository
     {
         private readonly IMapper _mapper = mapper;
 
@@ -23,7 +23,7 @@ namespace FCG.Infra.Repository
         public async Task<bool> Create(CatalogRegisterDto dto)
         {
             // conferir
-            var catalog = _mapper.Map<Catalog.Domain.Models.Catalog>(dto);
+            var catalog = _mapper.Map<Domain.Models.Catalog>(dto);
 
             await Register(catalog);
 

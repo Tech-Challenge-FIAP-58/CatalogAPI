@@ -2,7 +2,7 @@
 using FCG.Catalog.Domain.Inputs;
 using FCG.Catalog.Domain.Models;
 
-namespace FCG.Infra.Mapping;
+namespace FCG.Catalog.Infra.Mapping;
 
 public class GameProfile : Profile
 {

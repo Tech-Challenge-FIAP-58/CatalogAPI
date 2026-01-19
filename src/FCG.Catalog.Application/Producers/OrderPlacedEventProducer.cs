@@ -1,7 +1,7 @@
 ﻿using FCG.Core.Messages.Integration;
 using MassTransit;
 
-namespace FCG.Application.Producers;
+namespace FCG.Catalog.Application.Producers;
 
 public interface IOrderPlacedEventProducer
 {

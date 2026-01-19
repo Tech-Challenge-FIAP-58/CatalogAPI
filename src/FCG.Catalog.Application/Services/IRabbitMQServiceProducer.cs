@@ -1,4 +1,4 @@
-namespace FCG.Application.Services
+namespace FCG.Catalog.Application.Services
 {
     public interface IRabbitMQServiceProducer
     {

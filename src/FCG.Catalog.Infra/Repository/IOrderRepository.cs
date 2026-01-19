@@ -1,6 +1,6 @@
 ﻿using FCG.Catalog.Domain.Inputs;
 
-namespace FCG.Infra.Repository
+namespace FCG.Catalog.Infra.Repository
 {
     public interface IOrderRepository
     {

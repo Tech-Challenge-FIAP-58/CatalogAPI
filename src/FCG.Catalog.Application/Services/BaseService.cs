@@ -1,7 +1,7 @@
 ﻿using FCG.Catalog.Domain.Web;
 using System.Net;
 
-namespace FCG.Application.Services
+namespace FCG.Catalog.Application.Services
 {
     public abstract class BaseService
     {

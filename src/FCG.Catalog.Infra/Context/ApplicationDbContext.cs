@@ -1,10 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-namespace FCG.Infra.Context
+namespace FCG.Catalog.Infra.Context
 {
     public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : DbContext(options)
     {
-        public DbSet<Catalog.Domain.Models.Catalog> Catalogs { get; set; }
+        public DbSet<Domain.Models.Catalog> Catalogs { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

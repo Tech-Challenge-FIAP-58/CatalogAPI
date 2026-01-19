@@ -1,10 +1,10 @@
-﻿using FCG.Application.Consumers;
+﻿using FCG.Catalog.Application.Consumers;
+using FCG.Catalog.WebApi.Settings.Dtos;
 using FCG.Core.Objects;
-using FCG.WebApi.Settings.Dtos;
 using MassTransit;
 using Microsoft.Extensions.Options;
 
-namespace FCG.WebApi.Settings
+namespace FCG.Catalog.WebApi.Settings
 {
     public static class MassTransitSettings
     {

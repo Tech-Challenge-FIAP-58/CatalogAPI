@@ -2,11 +2,11 @@
 using FCG.Catalog.Domain.Inputs;
 using FCG.Catalog.Domain.Models;
 using FCG.Catalog.Domain.Validation;
-using FCG.Infra.Context;
+using FCG.Catalog.Infra.Context;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 
-namespace FCG.Infra.Repository
+namespace FCG.Catalog.Infra.Repository
 {
     public class GameRepository(ApplicationDbContext context, IMapper mapper) : EFRepository<Game>(context), IGameRepository
     {

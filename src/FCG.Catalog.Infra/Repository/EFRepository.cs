@@ -1,8 +1,8 @@
 ﻿using FCG.Catalog.Domain.Models;
-using FCG.Infra.Context;
+using FCG.Catalog.Infra.Context;
 using Microsoft.EntityFrameworkCore;
 
-namespace FCG.Infra.Repository
+namespace FCG.Catalog.Infra.Repository
 {
     public class EFRepository<T> : IRepository<T> where T : EntityBase
     {

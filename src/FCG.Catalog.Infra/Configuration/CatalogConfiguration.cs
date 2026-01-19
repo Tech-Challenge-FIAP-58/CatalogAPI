@@ -1,11 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace FCG.Infra.Configuration
+namespace FCG.Catalog.Infra.Configuration
 {
-    public class CatalogConfiguration : IEntityTypeConfiguration<Catalog.Domain.Models.Catalog>
+    public class CatalogConfiguration : IEntityTypeConfiguration<Domain.Models.Catalog>
     {
-        public void Configure(EntityTypeBuilder<Catalog.Domain.Models.Catalog> builder)
+        public void Configure(EntityTypeBuilder<Domain.Models.Catalog> builder)
         {
             builder.ToTable("Catalog");
             builder.HasKey(p => p.Id);

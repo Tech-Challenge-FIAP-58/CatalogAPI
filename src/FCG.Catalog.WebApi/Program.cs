@@ -1,11 +1,10 @@
-using FCG.Application.Producers;
-using FCG.Application.Services;
+using FCG.Catalog.Application.Producers;
+using FCG.Catalog.Application.Services;
+using FCG.Catalog.Infra.Context;
+using FCG.Catalog.Infra.Mapping;
+using FCG.Catalog.Infra.Repository;
+using FCG.Catalog.WebApi.Settings;
 using FCG.Core;
-using FCG.Infra.Context;
-using FCG.Infra.Mapping;
-using FCG.Infra.Repository;
-using FCG.Payments.Configuration;
-using FCG.WebApi.Settings;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;

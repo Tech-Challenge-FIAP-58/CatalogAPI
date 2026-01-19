@@ -1,9 +1,9 @@
 ﻿using AutoMapper;
 using FCG.Catalog.Domain.Inputs;
 using FCG.Catalog.Domain.Models;
-using FCG.Infra.Context;
+using FCG.Catalog.Infra.Context;
 
-namespace FCG.Infra.Repository
+namespace FCG.Catalog.Infra.Repository
 {
     public class OrderRepository(ApplicationDbContext context, IMapper mapper) : EFRepository<Order>(context), IOrderRepository
     {

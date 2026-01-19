@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace FCG.Infra.Configuration
+namespace FCG.Catalog.Infra.Configuration
 {
     public class OrderConfiguration : IEntityTypeConfiguration<Order>
     {

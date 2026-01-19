@@ -7,7 +7,7 @@ using System.Text;
 using System.Text.Json;
 
 
-namespace FCG.Application.Services
+namespace FCG.Catalog.Application.Services
 {
     // *****************************************************************
     // classe consumidora do rabbitMQ

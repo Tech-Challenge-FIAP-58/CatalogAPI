@@ -1,6 +1,6 @@
 ﻿using FCG.Catalog.Domain.Models;
 
-namespace FCG.Infra.Repository
+namespace FCG.Catalog.Infra.Repository
 {
     public interface IRepository<T> where T : EntityBase
     {

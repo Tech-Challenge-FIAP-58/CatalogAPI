@@ -1,8 +1,8 @@
 ﻿using FCG.Catalog.Domain.Inputs;
 using FCG.Catalog.Domain.Web;
-using FCG.Infra.Repository;
+using FCG.Catalog.Infra.Repository;
 
-namespace FCG.Application.Services
+namespace FCG.Catalog.Application.Services
 {
     public class OrderService(IOrderRepository repository) : BaseService, IOrderService
     {

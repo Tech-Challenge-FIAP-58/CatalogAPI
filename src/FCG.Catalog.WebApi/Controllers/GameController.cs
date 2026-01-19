@@ -1,9 +1,9 @@
-﻿using FCG.Application.Services;
+﻿using FCG.Catalog.Application.Services;
 using FCG.Catalog.Domain.Inputs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace FCG.WebApi.Controllers
+namespace FCG.Catalog.WebApi.Controllers
 {
     [Authorize]
     public class GameController(IGameService service, ILogger<GameController> logger) : StandardController

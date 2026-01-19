@@ -1,7 +1,7 @@
 ﻿using FCG.Catalog.Domain.Inputs;
 using FCG.Catalog.Domain.Web;
 
-namespace FCG.Application.Services
+namespace FCG.Catalog.Application.Services
 {
     public interface IGameService
     {

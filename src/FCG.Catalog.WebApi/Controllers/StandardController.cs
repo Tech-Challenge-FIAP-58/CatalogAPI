@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.Net;
 
-namespace FCG.WebApi.Controllers
+namespace FCG.Catalog.WebApi.Controllers
 {
 	[ApiController]
     [Route("v1/[controller]")]

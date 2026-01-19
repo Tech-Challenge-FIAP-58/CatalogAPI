@@ -1,11 +1,11 @@
-﻿using FCG.Application.Producers;
-using FCG.Application.Services;
+﻿using FCG.Catalog.Application.Producers;
+using FCG.Catalog.Application.Services;
 using FCG.Catalog.Domain.Inputs;
 using FCG.Core.Messages.Integration;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace FCG.WebApi.Controllers
+namespace FCG.Catalog.WebApi.Controllers
 {
     public class OrderController(IOrderService orderService,
         ILogger<OrderController> logger,

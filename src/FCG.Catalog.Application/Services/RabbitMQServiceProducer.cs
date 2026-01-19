@@ -3,7 +3,7 @@ using RabbitMQ.Client;
 using System.Text;
 using System.Text.Json;
 
-namespace FCG.Application.Services
+namespace FCG.Catalog.Application.Services
 {
     public class RabbitMQServiceProducer : IRabbitMQServiceProducer
     {

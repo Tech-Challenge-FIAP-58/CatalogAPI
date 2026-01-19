@@ -1,10 +1,10 @@
-﻿using FCG.Application.Services;
+﻿using FCG.Catalog.Application.Services;
 using FCG.Catalog.Domain.Inputs;
 using FCG.Core.Messages.Integration;
 using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace FCG.Application.Consumers
+namespace FCG.Catalog.Application.Consumers
 {
     public class PaymentProcessedEventConsumer : IConsumer<PaymentProcessedEvent>
     {
