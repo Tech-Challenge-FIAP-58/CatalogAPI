@@ -1,4 +1,4 @@
-﻿using FCG.Catalog.Application.Services;
+﻿using FCG.Catalog.Application.Interfaces;
 using FCG.Catalog.Domain.Inputs;
 using FCG.Core.Messages.Integration;
 using MassTransit;

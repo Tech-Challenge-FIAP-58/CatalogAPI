@@ -1,30 +1,30 @@
-﻿using FCG.Catalog.Application.Services;
+﻿using FCG.Catalog.Application.Interfaces;
 using FCG.Catalog.Domain.Inputs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FCG.Catalog.WebApi.Controllers
 {
-    [Authorize]
     public class GameController(IGameService service, ILogger<GameController> logger) : StandardController
     {
         [Authorize(Roles = "Admin")]
         [HttpPost("RegisterGame")]
-        [AllowAnonymous]
-        public Task<IActionResult> Post([FromBody] GameRegisterDto register)
+        public Task<IActionResult> Create([FromBody] GameRegisterDto register)
         {
             logger.LogInformation("POST - Criar jogo");
             return TryMethodAsync(() => service.Create(register), logger);
         }
 
-        [HttpGet("GetAllGames")]
+		[Authorize]
+		[HttpGet("GetAllGames")]
         public Task<IActionResult> Get()
         {
 			logger.LogInformation("GET - Listar jogos");
 			return TryMethodAsync(() => service.GetAll(), logger);
 		}
 
-        [HttpGet("GetGameById{id}")]
+		[Authorize]
+		[HttpGet("GetGameById{id}")]
         public Task<IActionResult> GetById(int id)
         {
 			logger.LogInformation("GET - Listar jogo por ID: {Id}", id);
@@ -33,7 +33,7 @@ namespace FCG.Catalog.WebApi.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpPut("UpdateGame/{id:int}")]
-        public Task<IActionResult> Put(int id, [FromBody] GameUpdateDto update)
+        public Task<IActionResult> Update(int id, [FromBody] GameUpdateDto update)
         {
             logger.LogInformation("PUT - Atualizar jogo com ID: {Id}", id);
             return TryMethodAsync(() => service.Update(id, update), logger);

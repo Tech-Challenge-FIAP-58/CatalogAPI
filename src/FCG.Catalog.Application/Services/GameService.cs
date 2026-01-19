@@ -1,4 +1,5 @@
-﻿using FCG.Catalog.Domain.Inputs;
+﻿using FCG.Catalog.Application.Interfaces;
+using FCG.Catalog.Domain.Inputs;
 using FCG.Catalog.Domain.Validation;
 using FCG.Catalog.Domain.Web;
 using FCG.Catalog.Infra.Repository;
@@ -33,7 +34,10 @@ namespace FCG.Catalog.Application.Services
                 : NotFound<bool>("Jogo não encontrado para remoção.");
         }
 
-        public async Task<IApiResponse<IEnumerable<GameResponseDto>>> GetAll() => Ok(await _repository.GetAll());
+        public async Task<IApiResponse<IEnumerable<GameResponseDto>>> GetAll()
+        {
+            return Ok(await _repository.GetAll());
+		}
 
         public async Task<IApiResponse<GameResponseDto?>> GetById(int id)
         {

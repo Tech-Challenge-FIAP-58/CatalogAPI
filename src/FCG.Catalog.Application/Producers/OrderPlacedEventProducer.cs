@@ -1,23 +1,14 @@
-﻿using FCG.Core.Messages.Integration;
+﻿using FCG.Catalog.Application.Interfaces;
+using FCG.Core.Messages.Integration;
 using MassTransit;
 
 namespace FCG.Catalog.Application.Producers;
 
-public interface IOrderPlacedEventProducer
+public class OrderPlacedEventProducer(ISendEndpointProvider sendEndpointProvider) : IOrderPlacedEventProducer
 {
-    Task Send(OrderPlacedEvent message);
-}
+    private readonly ISendEndpointProvider _sendEndpointProvider = sendEndpointProvider;
 
-public class OrderPlacedEventProducer : IOrderPlacedEventProducer
-{
-    private readonly ISendEndpointProvider _sendEndpointProvider;
-
-    public OrderPlacedEventProducer(ISendEndpointProvider sendEndpointProvider)
-    {
-        _sendEndpointProvider = sendEndpointProvider;
-    }
-
-    public async Task Send(OrderPlacedEvent message)
+	public async Task Send(OrderPlacedEvent message)
     {
         var endpoint = await _sendEndpointProvider
             .GetSendEndpoint(new Uri("queue:OrderPlacedEvent"));

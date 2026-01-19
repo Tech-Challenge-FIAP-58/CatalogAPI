@@ -1,3 +1,4 @@
+using FCG.Catalog.Application.Interfaces;
 using FCG.Catalog.Application.Producers;
 using FCG.Catalog.Application.Services;
 using FCG.Catalog.Infra.Context;

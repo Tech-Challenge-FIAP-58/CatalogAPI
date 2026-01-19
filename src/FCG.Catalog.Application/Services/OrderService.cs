@@ -1,17 +1,24 @@
-﻿using FCG.Catalog.Domain.Inputs;
+﻿using FCG.Catalog.Application.Interfaces;
+using FCG.Catalog.Domain.Inputs;
 using FCG.Catalog.Domain.Web;
 using FCG.Catalog.Infra.Repository;
+using FCG.Core.Messages.Integration;
 
 namespace FCG.Catalog.Application.Services
 {
-    public class OrderService(IOrderRepository repository) : BaseService, IOrderService
+    public class OrderService(IOrderRepository repository, IOrderPlacedEventProducer orderPlacedEventProducer) : BaseService, IOrderService
     {
         private readonly IOrderRepository _repository = repository;
 
-        public async Task<int> Create(OrderRegisterDto orderRegisterDto)
+        public async Task<IApiResponse<int>> Create(OrderRegisterDto orderRegisterDto)
         {
-            return await _repository.Create(orderRegisterDto);
-        }
+            var orderId = await _repository.Create(orderRegisterDto);
+			var orderRegistered = MapToPayment(orderId, orderRegisterDto);
+
+			await orderPlacedEventProducer.Send(orderRegistered);
+
+			return Success(orderId, message: $"Ordem #{orderId} criada com sucesso");
+		}
 
         public async Task<OrderResponseDto?> GetById(int id)
         {
@@ -26,11 +33,22 @@ namespace FCG.Catalog.Application.Services
                 : NotFound<bool>("Usuário não encontrado para atualização.");
         }
 
-        /*public async Task<IApiResponse<int>> Create(OrderRegisterDto orderRegisterDto)
-        {
-            var id = await _repository.Create(orderRegisterDto);
-            return Created(id, "Pedido registrado com sucesso.");
-        }*/
+		#region private ::
 
-    }
+		private static OrderPlacedEvent MapToPayment(int orderId, OrderRegisterDto message)
+		{
+			return new OrderPlacedEvent(
+					message.UserId,
+					orderId,
+					1,
+					message.Price,
+					message.CardName,
+					message.CardNumber,
+					message.ExpirationDate,
+					message.Cvv
+				);
+		}
+
+		#endregion
+	}
 }

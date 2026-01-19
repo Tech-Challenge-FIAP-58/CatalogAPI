@@ -1,4 +1,5 @@
-﻿using FCG.Catalog.Domain.Inputs;
+﻿using FCG.Catalog.Application.Interfaces;
+using FCG.Catalog.Domain.Inputs;
 using FCG.Catalog.Domain.Web;
 using FCG.Catalog.Infra.Repository;
 
