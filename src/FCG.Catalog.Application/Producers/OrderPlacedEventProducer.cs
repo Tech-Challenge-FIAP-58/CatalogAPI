@@ -6,11 +6,9 @@ namespace FCG.Catalog.Application.Producers;
 
 public class OrderPlacedEventProducer(ISendEndpointProvider sendEndpointProvider) : IOrderPlacedEventProducer
 {
-    private readonly ISendEndpointProvider _sendEndpointProvider = sendEndpointProvider;
-
 	public async Task Send(OrderPlacedEvent message)
     {
-        var endpoint = await _sendEndpointProvider
+        var endpoint = await sendEndpointProvider
             .GetSendEndpoint(new Uri("queue:OrderPlacedEvent"));
 
         await endpoint.Send(message);

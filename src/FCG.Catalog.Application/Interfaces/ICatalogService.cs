@@ -7,6 +7,6 @@ namespace FCG.Catalog.Application.Interfaces
     {
         Task<IApiResponse<IEnumerable<CatalogResponseDto>>> GetAll();
         Task<IApiResponse<CatalogResponseDto?>> GetByUserId(int id);
-        Task<IApiResponse<CatalogRegisterDto>> Create(CatalogRegisterDto dto);
+        Task<IApiResponse<CatalogRegisterDto?>> Create(CatalogRegisterDto dto);
     }
 }

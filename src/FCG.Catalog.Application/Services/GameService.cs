@@ -9,8 +9,6 @@ namespace FCG.Catalog.Application.Services
 {
     public class GameService(IGameRepository repository) : BaseService, IGameService
     {
-        private readonly IGameRepository _repository = repository;
-
         public async Task<IApiResponse<int>> Create(GameRegisterDto gameRegisterDto)
         {
             try
@@ -22,13 +20,13 @@ namespace FCG.Catalog.Application.Services
                 return BadRequest<int>($"Dados de jogo inválidos: {ex.Message}");
             }
 
-            var id = await _repository.Create(gameRegisterDto);
+            var id = await repository.Create(gameRegisterDto);
             return Created(id, "Jogo registrado com sucesso.");
         }
 
         public async Task<IApiResponse<bool>> Remove(int id)
         {
-            var removed = await _repository.Remove(id);
+            var removed = await repository.Remove(id);
             return removed
                 ? NoContent()
                 : NotFound<bool>("Jogo não encontrado para remoção.");
@@ -36,12 +34,12 @@ namespace FCG.Catalog.Application.Services
 
         public async Task<IApiResponse<IEnumerable<GameResponseDto>>> GetAll()
         {
-            return Ok(await _repository.GetAll());
+            return Ok(await repository.GetAll());
 		}
 
         public async Task<IApiResponse<GameResponseDto?>> GetById(int id)
         {
-            var dto = await _repository.GetById(id);
+            var dto = await repository.GetById(id);
             return dto is null
                 ? NotFound<GameResponseDto?>("Jogo não encontrado.")
                 : Ok<GameResponseDto?>(dto);
@@ -49,7 +47,7 @@ namespace FCG.Catalog.Application.Services
 
         public async Task<IApiResponse<bool>> Update(int id, GameUpdateDto updateDto)
         {
-            var ok = await _repository.Update(id, updateDto);
+            var ok = await repository.Update(id, updateDto);
             return ok
                 ? NoContent()
                 : NotFound<bool>("Usuário não encontrado para atualização.");

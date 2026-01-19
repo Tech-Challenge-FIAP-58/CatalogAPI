@@ -2,33 +2,20 @@
 using FCG.Catalog.Domain.Inputs;
 using FCG.Core.Messages.Integration;
 using MassTransit;
-using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace FCG.Catalog.Application.Consumers
 {
-    public class PaymentProcessedEventConsumer : IConsumer<PaymentProcessedEvent>
+    public class PaymentProcessedEventConsumer(ILogger<PaymentProcessedEventConsumer> logger, IOrderService orderService, ICatalogService catalogService) : IConsumer<PaymentProcessedEvent>
     {
-
-        private readonly IServiceScopeFactory _scopeFactory;
-
-        private readonly IOrderService _orderService;
-        private readonly ICatalogService _catalogService;
-
-        public PaymentProcessedEventConsumer(IOrderService orderService,ICatalogService catalogService)
+		public async Task Consume(ConsumeContext<PaymentProcessedEvent> context)
         {
-            _orderService = orderService;
-            _catalogService = catalogService;
-        }
+            logger.LogInformation("Pagamento processo para ordem #{}", context.Message.OrderId);
 
-        public async Task Consume(ConsumeContext<PaymentProcessedEvent> context)
-        {
-            Console.WriteLine(
-                $"Payment processed for OrderId: {context.Message.OrderId}"
-            );
+            var order = await orderService.GetById(context.Message.OrderId) 
+                ?? throw new NullReferenceException("Ordem não encontrada");
 
-            var order = await _orderService.GetById(context.Message.OrderId);
-
-            var status = context.Message.Status == PaymentResultStatus.Approved
+			var status = context.Message.Status == PaymentResultStatus.Approved
                 ? "Approved"
                 : "Denied";
 
@@ -45,7 +32,7 @@ namespace FCG.Catalog.Application.Consumers
                 Cvv = order.Cvv
             };
 
-            await _orderService.Update(context.Message.OrderId, orderUpdate);
+            await orderService.Update(context.Message.OrderId, orderUpdate);
 
             if (context.Message.Status == PaymentResultStatus.Approved)
             {
@@ -56,14 +43,13 @@ namespace FCG.Catalog.Application.Consumers
                     Price = order.Price
                 };
 
-                await _catalogService.Create(catalogRegister);
-                Console.WriteLine("✅ Pagamento aprovado, jogo adicionado ao catálogo");
+                await catalogService.Create(catalogRegister);
+				logger.LogInformation("✅ Pagamento aprovado, jogo adicionado ao catálogo");
             }
             else
             {
-                Console.WriteLine("❌ Pagamento negado");
+                logger.LogInformation("❌ Pagamento negado");
             }
         }
-
     }
 }

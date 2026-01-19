@@ -7,17 +7,15 @@ namespace FCG.Catalog.Application.Services
 {
     public class CatalogService(ICatalogRepository repository) : BaseService, ICatalogService
     {
-        private readonly ICatalogRepository _catalogRepository = repository;
-
         public async Task<IApiResponse<IEnumerable<CatalogResponseDto>>> GetAll()
         {
-            var list = await _catalogRepository.GetAll();
+            var list = await repository.GetAll();
             return Ok(list);
         }
 
         public async Task<IApiResponse<CatalogResponseDto?>> GetByUserId(int id)
         {
-            var dto = await _catalogRepository.GetByUserId(id);
+            var dto = await repository.GetByUserId(id);
             return dto is null
                 ? NotFound<CatalogResponseDto?>("Catálogo não encontrado para este usuário.")
                 : Ok<CatalogResponseDto?>(dto);
@@ -30,13 +28,10 @@ namespace FCG.Catalog.Application.Services
             dto.GameId = GameId;
             dto.Price = price;*/
 
-
-            await _catalogRepository.Create(dto);
+            await repository.Create(dto);
             return dto is null
                 ? NotFound<CatalogRegisterDto?>("Catálogo não encontrado para este usuário.")
                 : Ok<CatalogRegisterDto?>(dto);
         }
-
-
     }
 }
