@@ -1,6 +1,6 @@
 ﻿using FCG.Catalog.Application.Interfaces;
 using FCG.Catalog.Domain.Inputs;
-using FCG.Core.Messages.Integration;
+using FCG.Core.Integration;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 

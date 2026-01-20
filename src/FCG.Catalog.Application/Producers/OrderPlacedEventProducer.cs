@@ -1,5 +1,5 @@
 ﻿using FCG.Catalog.Application.Interfaces;
-using FCG.Core.Messages.Integration;
+using FCG.Core.Integration;
 using MassTransit;
 
 namespace FCG.Catalog.Application.Producers;

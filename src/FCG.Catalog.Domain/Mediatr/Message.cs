@@ -1,4 +1,4 @@
-﻿namespace FCG.Core.Messages
+﻿namespace FCG.Catalog.Domain.Mediatr
 {
     public abstract class Message
     {

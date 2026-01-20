@@ -1,10 +1,13 @@
 ﻿using AutoMapper;
 using FCG.Catalog.Domain.Inputs;
+using FCG.Catalog.Domain.Models;
 using FCG.Catalog.Infra.Context;
+using Microsoft.EntityFrameworkCore;
 
 namespace FCG.Catalog.Infra.Repository
 {
-    public class CatalogRepository(ApplicationDbContext context, IMapper mapper) : EFRepository<Domain.Models.Catalog>(context), ICatalogRepository
+    public class CatalogRepository(ApplicationDbContext context, IMapper mapper) 
+        : EFRepository<Domain.Models.Catalog>(context), ICatalogRepository
     {
         private readonly IMapper _mapper = mapper;
 
@@ -16,7 +19,7 @@ namespace FCG.Catalog.Infra.Repository
 
         public async Task<CatalogResponseDto?> GetByUserId(int id)
         {
-            var catalog = await Get(id);
+            var catalog = await GetByIntId(id);
             return catalog is null ? null : _mapper.Map<CatalogResponseDto>(catalog);
         }
 
@@ -30,5 +33,10 @@ namespace FCG.Catalog.Infra.Repository
             return true;
         }
 
+        private async Task<CatalogResponseDto> GetByIntId(int id)
+        {
+            var result = await _dbSet.FirstOrDefaultAsync(entity => entity.UserId == id);
+            return _mapper.Map<CatalogResponseDto>(result);
+        }
     }
 }

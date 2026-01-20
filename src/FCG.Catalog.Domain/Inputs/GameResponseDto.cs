@@ -1,7 +1,7 @@
 ﻿namespace FCG.Catalog.Domain.Inputs
 {
     public sealed record GameResponseDto(
-        int Id,
+        Guid Id,
         string Name,
         string Platform,
         string PublisherName,

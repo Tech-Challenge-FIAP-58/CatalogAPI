@@ -1,15 +1,18 @@
 using FCG.Catalog.Application.Interfaces;
 using FCG.Catalog.Application.Producers;
 using FCG.Catalog.Application.Services;
+using FCG.Catalog.Domain.Mediatr;
 using FCG.Catalog.Infra.Context;
 using FCG.Catalog.Infra.Mapping;
 using FCG.Catalog.Infra.Repository;
 using FCG.Catalog.WebApi.Settings;
 using FCG.Core;
+using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using System.Reflection;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -62,6 +65,9 @@ builder.Services.AddAutoMapper(cfg =>
 {
     cfg.AddProfile<CatalogProfile>();
 });
+
+builder.Services.AddMediatR(Assembly.GetExecutingAssembly());
+builder.Services.AddScoped<IMediatorHandler, MediatorHandler>();
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {

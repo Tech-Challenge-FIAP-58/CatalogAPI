@@ -29,7 +29,7 @@ namespace FCG.Catalog.Infra.Repository
             return true;
         }
 
-        public async Task<bool> Delete(int id)
+        public async Task<bool> Delete(Guid id)
         {
             var entity = await Get(id) ?? throw new ArgumentNullException(nameof(id), $"Erro ao deletar: Entidade inexistente!");
             _dbSet.Remove(entity);
@@ -37,7 +37,7 @@ namespace FCG.Catalog.Infra.Repository
             return true;
         }
 
-        public async Task<T?> Get(int id) => await _dbSet.FirstOrDefaultAsync(entity => entity.Id == id);
+        public async Task<T?> Get(Guid id) => await _dbSet.FirstOrDefaultAsync(entity => entity.Id == id);
 
         public async Task<IEnumerable<T>> Get() => await _dbSet.ToListAsync();
     }

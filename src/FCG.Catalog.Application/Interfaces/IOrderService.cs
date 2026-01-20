@@ -5,8 +5,8 @@ namespace FCG.Catalog.Application.Interfaces
 {
     public interface IOrderService
     {
-        Task<IApiResponse<int>> Create(OrderRegisterDto orderRegisterDto);
-        Task<OrderResponseDto?> GetById(int id);
-        Task<IApiResponse<bool>> Update(int id, OrderUpdateDto update);
+        Task<IApiResponse<Guid>> Create(OrderRegisterDto orderRegisterDto);
+        Task<OrderResponseDto?> GetById(Guid id);
+        Task<IApiResponse<bool>> Update(Guid id, OrderUpdateDto update);
     }
 }

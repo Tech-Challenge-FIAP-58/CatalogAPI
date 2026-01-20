@@ -65,7 +65,7 @@ namespace FCG.Catalog.Tests
 			var dto = new CatalogRegisterDto
 			{
 				UserId = 1,
-				GameId = 1,
+				GameId = Guid.NewGuid(),
 				Price = 199.90M
 			};
 			_repositoryMock.Setup(r => r.Create(dto)).ReturnsAsync(true);

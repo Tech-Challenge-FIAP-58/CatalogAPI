@@ -1,6 +1,6 @@
 ﻿using MediatR;
 
-namespace FCG.Core.Messages
+namespace FCG.Catalog.Domain.Mediatr
 {
     public class Event : Message, INotification
     {

@@ -1,10 +1,10 @@
 ﻿namespace FCG.Catalog.Domain.Inputs
 {
     public sealed record OrderResponseDto(
-        int Id,
+        Guid Id,
         DateTime OrderDate,
         int UserId,
-        int GameId,
+        Guid GameId,
         decimal Price,
         string PaymentStatus,
         string CardName,

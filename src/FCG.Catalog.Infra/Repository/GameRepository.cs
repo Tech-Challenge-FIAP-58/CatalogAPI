@@ -12,7 +12,7 @@ namespace FCG.Catalog.Infra.Repository
     {
         private readonly IMapper _mapper = mapper;
 
-        public async Task<int> Create(GameRegisterDto gameRegister)
+        public async Task<Guid> Create(GameRegisterDto gameRegister)
         {
             DtoValidator.ValidateObject(gameRegister);
 
@@ -31,20 +31,20 @@ namespace FCG.Catalog.Infra.Repository
             return [.. games.Select(g => _mapper.Map<GameResponseDto>(g))];
         }
 
-        public async Task<GameResponseDto?> GetById(int id)
+        public async Task<GameResponseDto?> GetById(Guid id)
         {
             var game = await Get(id);
             return game is null ? null : _mapper.Map<GameResponseDto>(game);
         }
 
-        public async Task<bool> Update(int id, GameUpdateDto gameUpdateDto)
+        public async Task<bool> Update(Guid id, GameUpdateDto gameUpdateDto)
         {
             var game = await Get(id) ?? throw new ArgumentNullException(nameof(id), $"Erro ao atualizar: Jogo inexistente!");
             _mapper.Map(gameUpdateDto, game);
             return await Edit(game);
         }
 
-        public async Task<bool> Remove(int id)
+        public async Task<bool> Remove(Guid id)
         {
             return await Delete(id);
         }

@@ -20,8 +20,9 @@ namespace FCG.Catalog.Tests
 		[Fact]
 		public async Task CreateGameTest()
 		{
-			// Arrange
-			var dto = new GameRegisterDto
+			var id = Guid.NewGuid();
+            // Arrange
+            var dto = new GameRegisterDto
 			{
 				Name = "EA FC 26",
 				Platform = "Playstation 5",
@@ -29,7 +30,7 @@ namespace FCG.Catalog.Tests
 				Description = "The next evolution of football.",
 				Price = 299.90
 			};
-			_repositoryMock.Setup(r => r.Create(dto)).ReturnsAsync(1);
+			_repositoryMock.Setup(r => r.Create(dto)).ReturnsAsync(id);
 
 			// Act
 			var response = await _sut.Create(dto);
@@ -37,7 +38,7 @@ namespace FCG.Catalog.Tests
 			// Assert
 			Assert.True(response.IsSuccess);
 			Assert.Equal(HttpStatusCode.Created, response.StatusCode);
-			Assert.Equal(1, response.ResultValue);
+			Assert.Equal(id, response.ResultValue);
 			Assert.Equal("Jogo registrado com sucesso.", response.Message);
 		}
 
@@ -45,7 +46,7 @@ namespace FCG.Catalog.Tests
 		public async Task RemoveGameTest()
 		{
 			// Arrange
-			var gameId = 1;
+			var gameId = Guid.NewGuid();
 			_repositoryMock.Setup(r => r.Remove(gameId)).ReturnsAsync(true);
 
 			// Act
@@ -62,8 +63,8 @@ namespace FCG.Catalog.Tests
 			// Arrange
 			var games = new List<GameResponseDto>
 			{
-				new(1, "Game 1", "PC", "Publisher 1", "Description 1", 59.99, DateTime.Now),
-				new(2, "Game 2", "Console", "Publisher 2", "Description 2", 69.99, DateTime.Now)
+				new(Guid.NewGuid(), "Game 1", "PC", "Publisher 1", "Description 1", 59.99, DateTime.Now),
+				new(Guid.NewGuid(), "Game 2", "Console", "Publisher 2", "Description 2", 69.99, DateTime.Now)
 			};
 			_repositoryMock.Setup(r => r.GetAll()).ReturnsAsync(games);
 
@@ -80,7 +81,7 @@ namespace FCG.Catalog.Tests
 		public async Task GetGameByIdTest()
 		{
 			// Arrange
-			var gameId = 1;
+			var gameId = Guid.NewGuid();
 			var game = new GameResponseDto(gameId, "Game 1", "PC", "Publisher 1", "Description 1", 59.99, DateTime.Now);
 			_repositoryMock.Setup(r => r.GetById(gameId)).ReturnsAsync(game);
 
@@ -97,7 +98,7 @@ namespace FCG.Catalog.Tests
 		public async Task UpdateGameTest()
 		{
 			// Arrange
-			var gameId = 1;
+			var gameId = Guid.NewGuid();
 			var updateDto = new GameUpdateDto
 			{
 				Name = "Updated Game",

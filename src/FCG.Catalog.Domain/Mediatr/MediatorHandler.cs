@@ -1,8 +1,7 @@
-﻿using FCG.Core.Messages;
-using FluentValidation.Results;
+﻿using FluentValidation.Results;
 using MediatR;
 
-namespace FCG.Core.Mediator
+namespace FCG.Catalog.Domain.Mediatr
 {
     public class MediatorHandler : IMediatorHandler
     {
