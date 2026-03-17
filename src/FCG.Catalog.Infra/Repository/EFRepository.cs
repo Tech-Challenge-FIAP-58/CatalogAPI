@@ -29,9 +29,8 @@ namespace FCG.Catalog.Infra.Repository
             return true;
         }
 
-        public async Task<bool> Delete(Guid id)
+        public async Task<bool> Delete(T entity)
         {
-            var entity = await Get(id) ?? throw new ArgumentNullException(nameof(id), $"Erro ao deletar: Entidade inexistente!");
             _dbSet.Remove(entity);
             await _context.SaveChangesAsync();
             return true;

@@ -8,6 +8,6 @@ namespace FCG.Catalog.Infra.Repository
         Task<T?> Get(Guid id);
         Task<bool> Register(T entity);
         Task<bool> Edit(T entity);
-        Task<bool> Delete(Guid id);
+        Task<bool> Delete(T entity);
     }
 }

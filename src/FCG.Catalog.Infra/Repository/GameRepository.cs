@@ -1,52 +1,28 @@
-﻿using AutoMapper;
-using FCG.Catalog.Domain.Inputs;
+﻿using Microsoft.EntityFrameworkCore;
 using FCG.Catalog.Domain.Models;
-using FCG.Catalog.Domain.Validation;
 using FCG.Catalog.Infra.Context;
-using Microsoft.EntityFrameworkCore;
-using System.ComponentModel.DataAnnotations;
 
 namespace FCG.Catalog.Infra.Repository
 {
-    public class GameRepository(ApplicationDbContext context, IMapper mapper) : EFRepository<Game>(context), IGameRepository
+    public class GameRepository(ApplicationDbContext context)
+        : EFRepository<Game>(context), IGameRepository
     {
-        private readonly IMapper _mapper = mapper;
-
-        public async Task<Guid> Create(GameRegisterDto gameRegister)
+        public async Task<Guid> Create(Game game)
         {
-            DtoValidator.ValidateObject(gameRegister);
-
-            if (await _dbSet.AsNoTracking().AnyAsync(u => u.Name == gameRegister.Name))
-                throw new ValidationException("Jogo já cadastrado.");
-
-            var entity = _mapper.Map<Game>(gameRegister);
-
-            await Register(entity);
-            return entity.Id;
+            await Register(game);
+            return game.Id;
         }
 
-        public async Task<IEnumerable<GameResponseDto>> GetAll()
-        {
-            var games = await Get();
-            return [.. games.Select(g => _mapper.Map<GameResponseDto>(g))];
-        }
+        public async Task<IEnumerable<Game>> GetAll() => await Get();
 
-        public async Task<GameResponseDto?> GetById(Guid id)
-        {
-            var game = await Get(id);
-            return game is null ? null : _mapper.Map<GameResponseDto>(game);
-        }
+        public async Task<Game?> GetById(Guid id) => await Get(id);
 
-        public async Task<bool> Update(Guid id, GameUpdateDto gameUpdateDto)
-        {
-            var game = await Get(id) ?? throw new ArgumentNullException(nameof(id), $"Erro ao atualizar: Jogo inexistente!");
-            _mapper.Map(gameUpdateDto, game);
-            return await Edit(game);
-        }
+        public async Task<Game?> GetByName(string name)
+            => await _dbSet.AsNoTracking().Where(u => u.Name == name)
+                .FirstOrDefaultAsync();
 
-        public async Task<bool> Remove(Guid id)
-        {
-            return await Delete(id);
-        }
+        public async Task<bool> Update(Game game) => await Edit(game);
+
+        public async Task<bool> Remove(Game game) => await Delete(game);
     }
 }

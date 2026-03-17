@@ -16,7 +16,8 @@ public sealed record class GameRegisterDto
     [Required, MinLength(2), MaxLength(100)]
     public required string Description { get; init; } = default!;
 
-    [Required, Range(0.01, double.MaxValue, ErrorMessage = "Preço deve ser maior que zero.")]
-    public required double Price { get; init; } = default!;
+    [Required]
+    [Range(typeof(decimal), "0.01", "79228162514264337593543950335", ErrorMessage = "Preço deve ser maior que zero.")]
+    public required decimal Price { get; init; } = default!;
 }
 

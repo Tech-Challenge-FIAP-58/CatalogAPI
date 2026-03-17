@@ -1,14 +1,23 @@
-﻿namespace FCG.Catalog.Domain.Inputs;
+﻿using FCG.Catalog.Domain.Models;
+
+namespace FCG.Catalog.Domain.Inputs;
 
 public sealed record class OrderRegisterDto
 {
     public required DateTime OrderDate { get; set; }
     public required int UserId { get; set; }
-    public required decimal Price { get; set; }
-    public required string PaymentStatus { get; set; }
-    public required string CardName { get; set; }
-    public required string CardNumber { get; set; }
-    public required string ExpirationDate { get; set; }
-    public required string Cvv { get; set; }
+    public required List<GameResponseDto> OrderGames { get; set; }
 
+    public static Order ToOrder(OrderRegisterDto dto)
+    {
+        var order = Order.Create(
+            dto.OrderDate, 
+            dto.UserId,
+            Enums.OrderStatus.Authorized, 
+            dto.OrderGames.Select(GameResponseDto.ToGame)
+            .ToList()
+        );
+
+        return order;
+    }
 }

@@ -1,4 +1,5 @@
 ﻿using FCG.Catalog.Domain.Web;
+using FluentValidation.Results;
 using System.Net;
 
 namespace FCG.Catalog.Application.Services
@@ -6,6 +7,12 @@ namespace FCG.Catalog.Application.Services
     public abstract class BaseService
     {
         // ===== Preferir estes =====
+        protected ValidationResult ValidationResult;
+
+        protected BaseService()
+        {
+            ValidationResult = new ValidationResult();
+        }
 
         protected static IApiResponse<T> Ok<T>(T result, string message = "")
             => Build(result, HttpStatusCode.OK, true, message);

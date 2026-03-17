@@ -23,6 +23,7 @@ namespace FCG.Catalog.Domain.Models
         public void AddEvent(Event evento)
         {
             _notificacoes = _notificacoes ?? new List<Event>();
+            evento.AggregateId = this.Id;
             _notificacoes.Add(evento);
         }
 
