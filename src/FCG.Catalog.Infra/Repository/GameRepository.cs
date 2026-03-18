@@ -15,7 +15,7 @@ namespace FCG.Catalog.Infra.Repository
 
         public async Task<IEnumerable<Game>> GetAll() => await Get();
 
-        public async Task<Game?> GetById(Guid id) => await Get(id);
+        public async Task<Game?> GetById(Guid id) => await _dbSet.Include(x => x.);
 
         public async Task<Game?> GetByName(string name)
             => await _dbSet.AsNoTracking().Where(u => u.Name == name)

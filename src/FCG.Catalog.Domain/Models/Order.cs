@@ -19,30 +19,30 @@ namespace FCG.Catalog.Domain.Models
 
         protected Order() { }
 
-        private Order(DateTime orderDate, int userId, OrderStatus status, List<Game> orderGames)
-        {
+        private Order(DateTime orderDate, int userId, List<Game> orderGames)
+        {   
             OrderDate = orderDate;
             UserId = userId;
-            Status = status;
+            Status = OrderStatus.Authorized;
             _orderGames = orderGames ?? new List<Game>();
         }
 
-        public static Order Create(DateTime orderDate, int userId, OrderStatus status, List<Game> orderGames)
+        public static Order Create(DateTime orderDate, int userId, List<Game> orderGames)
         {
-            var order = new Order(orderDate, userId, status, orderGames);
+            var order = new Order(orderDate, userId, orderGames);
+            order.AuthorizeOrder();
 
             order.CalculateOrderTotal();
-
             order.AddEvent(new OrderCreatedDomainEvent());
+
             return order;
         }
 
-        public void Update(DateTime? orderDate, int? userId, decimal? total, OrderStatus? status, List<Game>? orderGames)
+        public void Update(DateTime? orderDate, int? userId, decimal? total, List<Game>? orderGames)
         {
             if (orderDate.HasValue) OrderDate = orderDate.Value;
             if (userId.HasValue) UserId = userId.Value;
             if (total.HasValue) Total = total.Value;
-            if (status.HasValue) Status = status.Value;
 
             if (orderGames is not null)
             {
@@ -52,7 +52,7 @@ namespace FCG.Catalog.Domain.Models
 
             AddEvent(new OrderUpdatedDomainEvent());
         }
-
+        
         public void AuthorizeOrder()
         {
             Status = OrderStatus.Authorized;
@@ -66,6 +66,11 @@ namespace FCG.Catalog.Domain.Models
         public void PayOrder()
         {
             Status = OrderStatus.Paid;
+        }
+
+        public void RejectOrder()
+        {
+            Status = OrderStatus.Rejected;
         }
 
         public void CalculateOrderTotal()

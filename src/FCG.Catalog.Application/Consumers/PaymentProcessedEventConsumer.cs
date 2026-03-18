@@ -24,7 +24,7 @@ namespace FCG.Catalog.Application.Consumers
                 OrderDate = order.OrderDate,
                 UserId = order.UserId,
                 GameId = order.GameId,
-                Price = order.Price,
+                Total = order.Price,
                 PaymentStatus = status,
                 CardName = order.CardName,
                 CardNumber = order.CardNumber,

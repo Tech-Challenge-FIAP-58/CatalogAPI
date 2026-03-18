@@ -23,7 +23,6 @@ namespace FCG.Catalog.Application.Services
             }
 
             var order = OrderRegisterDto.ToOrder(orderRegisterDto);
-            order.AuthorizeOrder();
 
             var id = await _repository.Create(order);
 
@@ -46,7 +45,7 @@ namespace FCG.Catalog.Application.Services
             if (order is null)
                 return NotFound<bool>("Order not found.");
 
-            order.Update(updateDto.OrderDate, updateDto.UserId, updateDto.Price, updateDto.PaymentStatus);
+            order.Update(updateDto.OrderDate, updateDto.UserId, updateDto.Total);
 
             return order
                 ? NoContent()

@@ -6,7 +6,7 @@ namespace FCG.Catalog.Domain.Inputs
     {
         public DateTime OrderDate { get; set; }
         public int UserId { get; set; }
-        public decimal Price { get; set; }
+        public decimal Total { get; set; }
         public required List<GameResponseDto> OrderGames { get; set; }
 
         public static Order ToOrder(OrderUpdateDto dto)

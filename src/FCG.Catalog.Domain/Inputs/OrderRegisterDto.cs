@@ -10,14 +10,10 @@ public sealed record class OrderRegisterDto
 
     public static Order ToOrder(OrderRegisterDto dto)
     {
-        var order = Order.Create(
-            dto.OrderDate, 
+        return Order.Create(
+            dto.OrderDate,
             dto.UserId,
-            Enums.OrderStatus.Authorized, 
-            dto.OrderGames.Select(GameResponseDto.ToGame)
-            .ToList()
+            dto.OrderGames.Select(GameResponseDto.ToGame).ToList()
         );
-
-        return order;
     }
 }
