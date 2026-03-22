@@ -39,7 +39,6 @@ builder.Services.AddOpenTelemetry()
         .SetResourceBuilder(ResourceBuilder.CreateDefault().AddService(serviceName))
         .AddAspNetCoreInstrumentation()
         .AddHttpClientInstrumentation()
-        .AddRuntimeInstrumentation()
         .AddPrometheusExporter());
 
 var configSection = builder.Configuration.GetSection("Jwt");
