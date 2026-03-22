@@ -1,11 +1,18 @@
 ﻿using FCG.Catalog.Domain.Web;
+using FluentValidation.Results;
 using System.Net;
 
 namespace FCG.Catalog.Application.Services
 {
     public abstract class BaseService
     {
-        // ===== Preferir estes =====
+        // ===== Prefer these =====
+        protected ValidationResult ValidationResult;
+
+        protected BaseService()
+        {
+            ValidationResult = new ValidationResult();
+        }
 
         protected static IApiResponse<T> Ok<T>(T result, string message = "")
             => Build(result, HttpStatusCode.OK, true, message);
@@ -13,11 +20,11 @@ namespace FCG.Catalog.Application.Services
         protected static IApiResponse<T> Created<T>(T result, string message = "")
             => Build(result, HttpStatusCode.Created, true, message);
 
-        // Para operações sem payload em sucesso (Update/Delete)
+        // For operations without payload on success (Update/Delete)
         protected static IApiResponse<bool> NoContent(string message = "")
             => Build(false, HttpStatusCode.NoContent, true, message);
 
-        // NotFound/BadRequest/etc. (mantidos – já estavam corretos)
+        // NotFound/BadRequest/etc. (kept - already correct)
         public static IApiResponse<T> BadRequest<T>(string message = "")
             => Build(default(T), HttpStatusCode.BadRequest, false, message);
 
@@ -36,9 +43,9 @@ namespace FCG.Catalog.Application.Services
         public static IApiResponse<T> GenericError<T>(HttpStatusCode statusCode, string message = "")
             => Build(default(T), statusCode, false, message);
 
-        // ===== Retrocompatibilidade (evitar usar daqui pra frente) =====
-        // Estes mantêm o comportamento antigo (status 200 sempre em “success”)
-        // Só não remova agora para não quebrar código existente.
+        // ===== Backwards compatibility (avoid using going forward) =====
+        // These keep the old behavior (status 200 always in "success")
+        // Do not remove yet to avoid breaking existing code.
         public static IApiResponse<T> Success<T>(T resultValue, string message = "")
             => Build(resultValue, HttpStatusCode.OK, true, message);
 
@@ -49,7 +56,7 @@ namespace FCG.Catalog.Application.Services
             => Build(default(T), HttpStatusCode.OK, false, message);
         // ==========================
 
-        // Fábrica única
+        // Single factory
         private static IApiResponse<T> Build<T>(T? value, HttpStatusCode code, bool isSuccess, string message)
             => new ApiResponse<T>
             {
@@ -59,7 +66,7 @@ namespace FCG.Catalog.Application.Services
                 IsSuccess = isSuccess
             };
 
-        // Implementação concreta simples do envelope
+        // Simple concrete envelope implementation
         private sealed class ApiResponse<T> : IApiResponse<T>
         {
             public T? ResultValue { get; set; }

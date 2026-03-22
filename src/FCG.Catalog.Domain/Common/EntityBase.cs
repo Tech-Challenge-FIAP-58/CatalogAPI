@@ -1,6 +1,7 @@
-﻿using FCG.Catalog.Domain.Mediatr;
+using FCG.Catalog.Domain.Events;
+using FCG.Catalog.Domain.Mediatr;
 
-namespace FCG.Catalog.Domain.Models
+namespace FCG.Catalog.Domain.Common
 {
     public abstract class EntityBase
     {
@@ -16,25 +17,37 @@ namespace FCG.Catalog.Domain.Models
             CreatedAt = DateTime.UtcNow;
         }
 
-        private List<Event> _notificacoes;
+        private List<Event> _notifications;
 
-        public IReadOnlyCollection<Event> Notificacoes => _notificacoes?.AsReadOnly();
+        public IReadOnlyCollection<Event> Notifications => _notifications?.AsReadOnly();
 
-        public void AddEvent(Event evento)
+        public void AddEvent(Event domainEvent)
         {
-            _notificacoes = _notificacoes ?? new List<Event>();
-            _notificacoes.Add(evento);
+            _notifications ??= new List<Event>();
+            domainEvent.AggregateId = this.Id;
+
+            var existingIndex = _notifications.FindIndex(e => e.GetType() == domainEvent.GetType());
+
+            if (existingIndex >= 0)
+            {
+                _notifications[existingIndex] = domainEvent;
+                return;
+            }
+
+            _notifications.Add(domainEvent);
         }
 
-        public void RemoveEvent(Event evento)
+        public void RemoveEvent(Event domainEvent)
         {
-            _notificacoes?.Remove(evento);
+            _notifications?.Remove(domainEvent);
         }
 
         public void ClearEvents()
         {
-            _notificacoes?.Clear();
+            _notifications?.Clear();
         }
+
+        public abstract Event CreateDomainEvent(DomainEventAction action);
 
         #region Comparisons
         public override bool Equals(object obj)

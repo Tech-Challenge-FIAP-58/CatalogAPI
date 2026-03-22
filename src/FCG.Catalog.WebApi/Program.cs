@@ -3,7 +3,6 @@ using FCG.Catalog.Application.Producers;
 using FCG.Catalog.Application.Services;
 using FCG.Catalog.Domain.Mediatr;
 using FCG.Catalog.Infra.Context;
-using FCG.Catalog.Infra.Mapping;
 using FCG.Catalog.Infra.Repository;
 using FCG.Catalog.WebApi.Settings;
 using FCG.Core;
@@ -85,30 +84,28 @@ builder.Services.AddAutoMapper(
     AppDomain.CurrentDomain.GetAssemblies()
 );
 
-builder.Services.AddAutoMapper(cfg =>
-{
-    cfg.AddProfile<CatalogProfile>();
-});
-
 builder.Services.AddMediatR(Assembly.GetExecutingAssembly());
 builder.Services.AddScoped<IMediatorHandler, MediatorHandler>();
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("Core"));
-    options.UseLazyLoadingProxies();
 }, ServiceLifetime.Scoped);
 
 builder.AddMessageBusConfiguration();
 builder.InitilizeRetrySettings();
 builder.AddMassTransitSettings();
 
-builder.Services.AddScoped<ICatalogRepository, CatalogRepository>();
+// repositório de banco de dados
+builder.Services.AddScoped<ICartRepository, CartRepository>();
 builder.Services.AddScoped<IGameRepository, GameRepository>();
+builder.Services.AddScoped<IGameLibraryRepository, GameLibraryRepository>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 
-builder.Services.AddScoped<ICatalogService, CatalogService>();
+// serviço de apoio para as iterações com o banco
+builder.Services.AddScoped<ICartService, CartService>();
 builder.Services.AddScoped<IGameService, GameService>();
+builder.Services.AddScoped<IGameLibraryService, GameLibraryService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 
 builder.Services.AddScoped<IOrderPlacedEventProducer, OrderPlacedEventProducer>();
@@ -143,21 +140,23 @@ using (var scope = app.Services.CreateScope())
     {
         try
         {
-            logger.LogInformation("Tentando aplicar migrations (tentativa {Attempt}/{MaxAttempts})...", attempt, maxAttempts);
-            dbContext.Database.Migrate();
-            logger.LogInformation("Migrations aplicadas com sucesso.");
+            logger.LogInformation("Trying to apply migrations (attempt {Attempt}/{MaxAttempts})...", attempt, maxAttempts);
+            dbContext.Database.Migrate(); // applies pending migrations (synchronous)
+            logger.LogInformation("Migrations applied successfully.");
             break;
         }
         catch (Exception ex)
         {
-            logger.LogWarning(ex, "Falha ao aplicar migrations na tentativa {Attempt}.", attempt);
+            logger.LogWarning(ex, "Failed to apply migrations on attempt {Attempt}.", attempt);
             if (attempt == maxAttempts)
             {
-                logger.LogError(ex, "Não foi possível aplicar migrations após {MaxAttempts} tentativas. Encerrando aplicação.", maxAttempts);
-                throw;
+                logger.LogError(ex, "Could not apply migrations after {MaxAttempts} attempts. Shutting down application.", maxAttempts);
+                throw; // aborts startup (you may choose not to throw and continue)
             }
+            // simple backoff (2s * attempt), capped at 30s
             var delay = TimeSpan.FromSeconds(Math.Min(30, 2 * attempt));
-            logger.LogInformation("Aguardando {Delay} antes da próxima tentativa...", delay);
+            logger.LogInformation("Waiting {Delay} before next attempt...", delay);
+            // uses Task.Delay to avoid blocking the thread
             await Task.Delay(delay);
         }
     }

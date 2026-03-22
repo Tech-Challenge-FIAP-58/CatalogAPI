@@ -18,14 +18,40 @@ namespace FCG.Catalog.Infra.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("ProductVersion", "8.0.0")
-                .HasAnnotation("Proxies:ChangeTracking", false)
-                .HasAnnotation("Proxies:CheckEquality", false)
-                .HasAnnotation("Proxies:LazyLoading", true)
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("FCG.Catalog.Domain.Models.Catalog", b =>
+            modelBuilder.Entity("FCG.Catalog.Domain.Events.StoredEvent", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("AggregateId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("AggregateType")
+                        .IsRequired()
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<string>("EventType")
+                        .IsRequired()
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<DateTime>("OccurredOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Payload")
+                        .IsRequired()
+                        .HasColumnType("varchar(100)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("StoredEvents");
+                });
+
+            modelBuilder.Entity("FCG.Catalog.Domain.Models.Cart.Cart", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -37,14 +63,14 @@ namespace FCG.Catalog.Infra.Migrations
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid>("GameId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
-                    b.Property<decimal>("Price")
-                        .HasColumnType("DECIMAL(18,2)");
+                    b.Property<int>("Status")
+                        .HasColumnType("INT");
+
+                    b.Property<decimal>("Total")
+                        .HasColumnType("DECIMAL(12,2)");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
@@ -54,10 +80,45 @@ namespace FCG.Catalog.Infra.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Catalog", (string)null);
+                    b.ToTable("Cart", (string)null);
                 });
 
-            modelBuilder.Entity("FCG.Catalog.Domain.Models.Game", b =>
+            modelBuilder.Entity("FCG.Catalog.Domain.Models.Cart.CartItem", b =>
+                {
+                    b.Property<Guid>("CartId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("GameId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("VARCHAR(100)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("VARCHAR(100)");
+
+                    b.Property<string>("Platform")
+                        .IsRequired()
+                        .HasColumnType("VARCHAR(100)");
+
+                    b.Property<string>("PublisherName")
+                        .IsRequired()
+                        .HasColumnType("VARCHAR(100)");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("INT");
+
+                    b.Property<decimal>("UnitPrice")
+                        .HasColumnType("DECIMAL(12,2)");
+
+                    b.HasKey("CartId", "GameId");
+
+                    b.ToTable("CartItem", (string)null);
+                });
+
+            modelBuilder.Entity("FCG.Catalog.Domain.Models.Catalog.Game", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -72,6 +133,9 @@ namespace FCG.Catalog.Infra.Migrations
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("VARCHAR(100)");
+
+                    b.Property<bool>("IsAvailable")
+                        .HasColumnType("bit");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
@@ -99,36 +163,75 @@ namespace FCG.Catalog.Infra.Migrations
                     b.ToTable("Game", (string)null);
                 });
 
-            modelBuilder.Entity("FCG.Catalog.Domain.Models.Order", b =>
+            modelBuilder.Entity("FCG.Catalog.Domain.Models.Library.GameLibrary", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("CardName")
-                        .IsRequired()
-                        .HasColumnType("VARCHAR(100)");
-
-                    b.Property<string>("CardNumber")
-                        .IsRequired()
-                        .HasColumnType("VARCHAR(100)");
-
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
-
-                    b.Property<string>("Cvv")
-                        .IsRequired()
-                        .HasColumnType("VARCHAR(100)");
 
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("ExpirationDate")
-                        .IsRequired()
-                        .HasColumnType("VARCHAR(100)");
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("INT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("GameLibrary", (string)null);
+                });
+
+            modelBuilder.Entity("FCG.Catalog.Domain.Models.Library.GameLibraryItem", b =>
+                {
+                    b.Property<Guid>("GameLibraryId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("GameId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("VARCHAR(100)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("VARCHAR(100)");
+
+                    b.Property<string>("Platform")
+                        .IsRequired()
+                        .HasColumnType("VARCHAR(100)");
+
+                    b.Property<string>("PublisherName")
+                        .IsRequired()
+                        .HasColumnType("VARCHAR(100)");
+
+                    b.Property<decimal>("UnitPrice")
+                        .HasColumnType("DECIMAL(12,2)");
+
+                    b.HasKey("GameLibraryId", "GameId");
+
+                    b.ToTable("GameLibraryItem", (string)null);
+                });
+
+            modelBuilder.Entity("FCG.Catalog.Domain.Models.Order.Order", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
@@ -136,11 +239,10 @@ namespace FCG.Catalog.Infra.Migrations
                     b.Property<DateTime>("OrderDate")
                         .HasColumnType("DATETIME");
 
-                    b.Property<string>("PaymentStatus")
-                        .IsRequired()
-                        .HasColumnType("VARCHAR(100)");
+                    b.Property<int>("Status")
+                        .HasColumnType("INT");
 
-                    b.Property<decimal>("Price")
+                    b.Property<decimal>("Total")
                         .HasColumnType("DECIMAL(12,2)");
 
                     b.Property<DateTime?>("UpdatedAt")
@@ -152,6 +254,80 @@ namespace FCG.Catalog.Infra.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Order", (string)null);
+                });
+
+            modelBuilder.Entity("FCG.Catalog.Domain.Models.Order.OrderItem", b =>
+                {
+                    b.Property<Guid>("OrderId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("GameId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("VARCHAR(100)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("VARCHAR(100)");
+
+                    b.Property<string>("Platform")
+                        .IsRequired()
+                        .HasColumnType("VARCHAR(100)");
+
+                    b.Property<string>("PublisherName")
+                        .IsRequired()
+                        .HasColumnType("VARCHAR(100)");
+
+                    b.Property<decimal>("UnitPrice")
+                        .HasColumnType("DECIMAL(12,2)");
+
+                    b.HasKey("OrderId", "GameId");
+
+                    b.ToTable("OrderItem", (string)null);
+                });
+
+            modelBuilder.Entity("FCG.Catalog.Domain.Models.Cart.CartItem", b =>
+                {
+                    b.HasOne("FCG.Catalog.Domain.Models.Cart.Cart", null)
+                        .WithMany("Items")
+                        .HasForeignKey("CartId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("FCG.Catalog.Domain.Models.Library.GameLibraryItem", b =>
+                {
+                    b.HasOne("FCG.Catalog.Domain.Models.Library.GameLibrary", null)
+                        .WithMany("Games")
+                        .HasForeignKey("GameLibraryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("FCG.Catalog.Domain.Models.Order.OrderItem", b =>
+                {
+                    b.HasOne("FCG.Catalog.Domain.Models.Order.Order", null)
+                        .WithMany("Items")
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("FCG.Catalog.Domain.Models.Cart.Cart", b =>
+                {
+                    b.Navigation("Items");
+                });
+
+            modelBuilder.Entity("FCG.Catalog.Domain.Models.Library.GameLibrary", b =>
+                {
+                    b.Navigation("Games");
+                });
+
+            modelBuilder.Entity("FCG.Catalog.Domain.Models.Order.Order", b =>
+                {
+                    b.Navigation("Items");
                 });
 #pragma warning restore 612, 618
         }

@@ -1,4 +1,4 @@
-﻿using FCG.Catalog.Domain.Models;
+﻿using FCG.Catalog.Domain.Models.Order;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -11,12 +11,14 @@ namespace FCG.Catalog.Infra.Configuration
             builder.ToTable("Order");
             builder.Property(p => p.OrderDate).HasColumnType("DATETIME").IsRequired();
             builder.Property(p => p.UserId).HasColumnType("INT").IsRequired();
-            builder.Property(p => p.Price).HasColumnType("DECIMAL(12,2)").IsRequired();
-            builder.Property(p => p.PaymentStatus).HasColumnType("VARCHAR(100)").IsRequired();
-            builder.Property(p => p.CardName).HasColumnType("VARCHAR(100)").IsRequired();
-            builder.Property(p => p.CardNumber).HasColumnType("VARCHAR(100)").IsRequired();
-            builder.Property(p => p.ExpirationDate).HasColumnType("VARCHAR(100)").IsRequired();
-            builder.Property(p => p.Cvv).HasColumnType("VARCHAR(100)").IsRequired();
+            builder.Property(p => p.Total).HasColumnType("DECIMAL(12,2)").IsRequired();
+            builder.Property(p => p.Status).HasColumnType("INT").IsRequired();
+
+            builder.HasMany(o => o.Items)
+                .WithOne()
+                .HasForeignKey("OrderId");
+
+            builder.Navigation(o => o.Items).UsePropertyAccessMode(PropertyAccessMode.Field);
         }
     }
 }

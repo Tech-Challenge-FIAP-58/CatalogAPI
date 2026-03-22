@@ -1,15 +1,20 @@
-﻿namespace FCG.Catalog.Domain.Inputs
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace FCG.Catalog.Domain.Inputs
 {
     public sealed record OrderUpdateDto
     {
+        [Required]
         public DateTime OrderDate { get; set; }
+
+        [Required]
         public int UserId { get; set; }
-        public Guid GameId { get; set; }
-        public decimal Price { get; set; }
-        public string PaymentStatus { get; set; }
-        public string CardName { get; set; }
-        public string CardNumber { get; set; }
-        public string ExpirationDate { get; set; }
-        public string Cvv { get; set; }
+
+        [Required]
+        public decimal Total { get; set; }
+
+        [Required]
+        [MinLength(1)]
+        public required List<OrderItemRegisterDto> OrderGames { get; set; }
     }
 }

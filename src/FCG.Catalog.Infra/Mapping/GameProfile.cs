@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using FCG.Catalog.Domain.Inputs;
-using FCG.Catalog.Domain.Models;
+using FCG.Catalog.Domain.Models.Catalog;
 
 namespace FCG.Catalog.Infra.Mapping;
 
@@ -8,20 +8,38 @@ public class GameProfile : Profile
 {
     public GameProfile()
     {
-        // REGISTER: DTO -> Entity
         CreateMap<GameRegisterDto, Game>()
-            // Gerenciados pela aplicação/EF
-            .ForMember(d => d.Id, opt => opt.Ignore())
-            .ForMember(d => d.CreatedAt, opt => opt.Ignore());
-        // Password pode vir do DTO; o repo/service fará o hash antes de salvar
+            .ConvertUsing((dto, _, context) =>
+            {
+                return Game.Create(
+                    dto.Name,
+                    dto.Platform,
+                    dto.PublisherName,
+                    dto.Description,
+                    dto.Price
+                );
+            });
 
-        // UPDATE: DTO -> Entity (aplica apenas quando vier valor)
+        //CreateMap<GameRegisterDto, Game>()
+        //    .ForMember(d => d.Id, opt => opt.Ignore())
+        //    .ForMember(d => d.CreatedAt, opt => opt.Ignore());
+
         CreateMap<GameUpdateDto, Game>()
             .ForMember(d => d.Id, opt => opt.Ignore())
             .ForMember(d => d.CreatedAt, opt => opt.Ignore())
             .ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
 
-        // Entity -> DTO de resposta
-        CreateMap<Game, GameResponseDto>();
+        CreateMap<Game, GameResponseDto>()
+            .ConstructUsing(g => new GameResponseDto
+            {
+                Id = g.Id,
+                Name = g.Name,
+                Platform = g.Platform,
+                PublisherName = g.PublisherName,
+                Description = g.Description,
+                Price = g.Price,
+                IsAvailable = g.IsAvailable,
+                CreatedAtUtc = g.CreatedAt
+            });
     }
 }

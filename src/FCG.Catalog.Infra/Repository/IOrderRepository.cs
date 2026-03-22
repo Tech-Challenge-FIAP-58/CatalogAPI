@@ -1,11 +1,12 @@
-﻿using FCG.Catalog.Domain.Inputs;
+﻿using OrderAggregate = FCG.Catalog.Domain.Models.Order.Order;
 
 namespace FCG.Catalog.Infra.Repository
 {
-    public interface IOrderRepository
+    public interface IOrderRepository : IRepository<OrderAggregate>
     {
-        Task<Guid> Create(OrderRegisterDto orderRegister);
-        Task<OrderResponseDto?> GetById(Guid id);
-        Task<bool> Update(Guid id, OrderUpdateDto orderUpdateDto);
+        Guid Create(OrderAggregate orderRegister);
+        Task<OrderAggregate?> GetById(Guid id);
+        Task<IReadOnlyCollection<OrderAggregate>> GetByUserId(int userId);
+        void Update(Guid id, OrderAggregate orderUpdateDto);
     }
 }

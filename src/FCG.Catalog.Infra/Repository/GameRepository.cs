@@ -1,52 +1,34 @@
-﻿using AutoMapper;
-using FCG.Catalog.Domain.Inputs;
-using FCG.Catalog.Domain.Models;
-using FCG.Catalog.Domain.Validation;
+﻿using Microsoft.EntityFrameworkCore;
 using FCG.Catalog.Infra.Context;
-using Microsoft.EntityFrameworkCore;
-using System.ComponentModel.DataAnnotations;
+using FCG.Catalog.Domain.Models.Catalog;
 
 namespace FCG.Catalog.Infra.Repository
 {
-    public class GameRepository(ApplicationDbContext context, IMapper mapper) : EFRepository<Game>(context), IGameRepository
+    public class GameRepository(ApplicationDbContext context)
+        : Repository<Game>(context), IGameRepository
     {
-        private readonly IMapper _mapper = mapper;
-
-        public async Task<Guid> Create(GameRegisterDto gameRegister)
+        public Guid Create(Game game)
         {
-            DtoValidator.ValidateObject(gameRegister);
-
-            if (await _dbSet.AsNoTracking().AnyAsync(u => u.Name == gameRegister.Name))
-                throw new ValidationException("Jogo já cadastrado.");
-
-            var entity = _mapper.Map<Game>(gameRegister);
-
-            await Register(entity);
-            return entity.Id;
+            Add(game);
+            return game.Id;
         }
 
-        public async Task<IEnumerable<GameResponseDto>> GetAll()
+        public Task<IEnumerable<Game>> GetAll() => base.GetAll();
+
+        public Task<Game?> GetById(Guid id) => base.GetById(id);
+
+        public async Task<Game?> GetByName(string name)
+            => await _dbSet.AsNoTracking().Where(u => u.Name == name)
+                .FirstOrDefaultAsync();
+
+        public void Update(Game game)
         {
-            var games = await Get();
-            return [.. games.Select(g => _mapper.Map<GameResponseDto>(g))];
+            base.Update(game);
         }
 
-        public async Task<GameResponseDto?> GetById(Guid id)
+        public void Remove(Game game)
         {
-            var game = await Get(id);
-            return game is null ? null : _mapper.Map<GameResponseDto>(game);
-        }
-
-        public async Task<bool> Update(Guid id, GameUpdateDto gameUpdateDto)
-        {
-            var game = await Get(id) ?? throw new ArgumentNullException(nameof(id), $"Erro ao atualizar: Jogo inexistente!");
-            _mapper.Map(gameUpdateDto, game);
-            return await Edit(game);
-        }
-
-        public async Task<bool> Remove(Guid id)
-        {
-            return await Delete(id);
+            Delete(game);
         }
     }
 }

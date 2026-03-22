@@ -1,14 +1,17 @@
-﻿using FCG.Catalog.Domain.Mediatr;
-using FCG.Catalog.Domain.Models;
+﻿using FCG.Catalog.Domain.Common;
+using FCG.Catalog.Domain.Events;
+using FCG.Catalog.Domain.Mediatr;
 using FluentValidation.Results;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
+using System.Text.Json;
 
 namespace FCG.Catalog.Infra.Context
 {
     public class ApplicationDbContext : DbContext
     {
         private readonly IMediatorHandler _mediatorHandler;
-        public DbSet<Domain.Models.Catalog> Catalogs { get; set; }
+        public DbSet<StoredEvent> StoredEvents { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options,
             IMediatorHandler mediatorHandler)
@@ -21,7 +24,6 @@ namespace FCG.Catalog.Infra.Context
 
         protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
         {
-            // Define que TODA string, por padrão, será varchar(100)
             configurationBuilder.Properties<string>()
                 .HaveColumnType("varchar(100)");
         }
@@ -36,13 +38,32 @@ namespace FCG.Catalog.Infra.Context
                 .SelectMany(e => e.GetForeignKeys())) relationship.DeleteBehavior = DeleteBehavior.ClientSetNull;
 
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
+            ApplySoftDeleteQueryFilter(modelBuilder);
             base.OnModelCreating(modelBuilder);
+        }
+
+        private static void ApplySoftDeleteQueryFilter(ModelBuilder modelBuilder)
+        {
+            var entityTypes = modelBuilder.Model.GetEntityTypes()
+                .Where(t => typeof(EntityBase).IsAssignableFrom(t.ClrType));
+
+            foreach (var entityType in entityTypes)
+            {
+                var parameter = Expression.Parameter(entityType.ClrType, "e");
+                var isDeletedProperty = Expression.Property(parameter, nameof(EntityBase.IsDeleted));
+                var compare = Expression.Equal(isDeletedProperty, Expression.Constant(false));
+                var lambda = Expression.Lambda(compare, parameter);
+
+                modelBuilder.Entity(entityType.ClrType).HasQueryFilter(lambda);
+            }
         }
 
         public override async Task<int> SaveChangesAsync(
             CancellationToken cancellationToken = default)
         {
-            foreach (var entry in ChangeTracker.Entries().Where(entry => entry.Entity.GetType().GetProperty("CreationTime") != null))
+            ChangeTracker.DetectChanges();
+
+            foreach (var entry in ChangeTracker.Entries().Where(entry => entry.Entity.GetType().GetProperty("CreatedAt") != null))
             {
                 if (entry.State == EntityState.Added)
                 {
@@ -55,7 +76,7 @@ namespace FCG.Catalog.Infra.Context
                     entry.Property("UpdatedAt").CurrentValue = DateTime.Now;
                 }
 
-                if (entry.State == EntityState.Modified && (bool)entry.Property("IsDeleted").CurrentValue)
+                if (entry.State == EntityState.Deleted)
                 {
                     foreach (var property in entry.Properties)
                     {
@@ -65,14 +86,36 @@ namespace FCG.Catalog.Infra.Context
                     entry.Property("IsDeleted").IsModified = true;
                     entry.Property("DeletedAt").IsModified = true;
                     entry.Property("DeletedAt").CurrentValue = DateTime.Now;
+                    entry.State = EntityState.Modified;
                 }
             }
 
-            var affectedRows = await base.SaveChangesAsync();
+            var domainEntities = ChangeTracker.Entries<EntityBase>()
+                .Where(x => x.Entity.Notifications != null && x.Entity.Notifications.Any())
+                .ToList();
 
-            if (!(affectedRows > 0)) return affectedRows;
+            var domainEvents = domainEntities
+                .SelectMany(x => x.Entity.Notifications)
+                .ToList();
 
-            await _mediatorHandler.PublishEvents(this);
+            foreach (var entry in domainEntities)
+                foreach (var domainEvent in entry.Entity.Notifications)
+                    StoredEvents.Add(new StoredEvent(
+                        entry.Entity.Id,
+                        entry.Entity.GetType().Name,
+                        domainEvent.GetType().Name,
+                        JsonSerializer.Serialize((object)domainEvent)
+                    ));
+
+            domainEntities.ForEach(e => e.Entity.ClearEvents());
+
+            var affectedRows = await base.SaveChangesAsync(cancellationToken);
+
+            if (domainEvents.Count > 0)
+            {
+                var tasks = domainEvents.Select(e => _mediatorHandler.PublishEvent(e));
+                await Task.WhenAll(tasks);
+            }
 
             return affectedRows;
         }
@@ -84,10 +127,10 @@ namespace FCG.Catalog.Infra.Context
         {
             var domainEntities = ctx.ChangeTracker
                 .Entries<EntityBase>()
-                .Where(x => x.Entity.Notificacoes != null && x.Entity.Notificacoes.Any());
+                .Where(x => x.Entity.Notifications != null && x.Entity.Notifications.Any());
 
             var domainEvents = domainEntities
-                .SelectMany(x => x.Entity.Notificacoes)
+                .SelectMany(x => x.Entity.Notifications)
                 .ToList();
 
             domainEntities.ToList()
