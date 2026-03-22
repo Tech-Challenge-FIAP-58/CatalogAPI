@@ -1,23 +1,20 @@
-﻿using FCG.Catalog.Domain.Models;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace FCG.Catalog.Domain.Inputs
 {
     public sealed record OrderUpdateDto
     {
+        [Required]
         public DateTime OrderDate { get; set; }
+
+        [Required]
         public int UserId { get; set; }
+
+        [Required]
         public decimal Total { get; set; }
-        public required List<GameResponseDto> OrderGames { get; set; }
 
-        public static Order ToOrder(OrderUpdateDto dto)
-        {
-            var order = Order.Create(
-                dto.OrderDate,
-                dto.UserId,
-                dto.OrderGames.Select(GameResponseDto.ToGame).ToList()
-            );
-
-            return order;
-        }
+        [Required]
+        [MinLength(1)]
+        public required List<OrderItemRegisterDto> OrderGames { get; set; }
     }
 }

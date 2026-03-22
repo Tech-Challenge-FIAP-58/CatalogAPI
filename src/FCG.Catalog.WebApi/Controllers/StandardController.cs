@@ -18,7 +18,7 @@ namespace FCG.Catalog.WebApi.Controllers
             {
                 var result = await serviceMethod();
 
-                // 204 não deve ter body
+                // 204 must not have a body
                 if (result.StatusCode == HttpStatusCode.NoContent)
                     return StatusCode((int)HttpStatusCode.NoContent);
 
@@ -27,7 +27,7 @@ namespace FCG.Catalog.WebApi.Controllers
 
                 return StatusCode((int)result.StatusCode, result);
             }
-            // ✅ mapeia erros conhecidos COM a mensagem real
+            // ✅ maps known errors with the real message
             catch (ValidationException ex)
             {
                 logger.LogWarning(ex, ex.Message);
@@ -51,13 +51,13 @@ namespace FCG.Catalog.WebApi.Controllers
             catch (DbUpdateException ex)
             {
                 logger.LogError(ex, ex.Message);
-                // Conflito de integridade, chave única, FK, etc.
+                // Integrity conflict, unique key, FK, etc.
                 return CreateProblem(HttpStatusCode.Conflict, ex);
             }
-            // ✅ fallback genérico mantém seu comportamento atual
+            // ✅ generic fallback keeps the current behavior
             catch (Exception ex)
             {
-                logger.LogError(ex, "Erro inesperado no TryMethodAsync");
+                logger.LogError(ex, "Unexpected error in TryMethodAsync");
                 return CreateProblem(HttpStatusCode.InternalServerError, ex, genericOnProd: true);
             }
         }
@@ -105,7 +105,7 @@ namespace FCG.Catalog.WebApi.Controllers
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "Erro inesperado no TryMethod");
+                logger.LogError(ex, "Unexpected error in TryMethod");
                 return CreateProblem(HttpStatusCode.InternalServerError, ex, genericOnProd: true);
             }
         }
@@ -119,7 +119,7 @@ namespace FCG.Catalog.WebApi.Controllers
                 Detail = ex.Message
             };
 
-            // útil para correlação em logs
+            // useful for correlation in logs
             problem.Extensions["traceId"] = HttpContext?.TraceIdentifier;
 
             return StatusCode(problem.Status.Value, problem);
@@ -127,13 +127,13 @@ namespace FCG.Catalog.WebApi.Controllers
 
         private static string ToDefaultTitle(HttpStatusCode code) => code switch
         {
-            HttpStatusCode.BadRequest => "Requisição inválida",
-            HttpStatusCode.Unauthorized => "Não autorizado",
-            HttpStatusCode.Forbidden => "Proibido",
-            HttpStatusCode.NotFound => "Recurso não encontrado",
-            HttpStatusCode.Conflict => "Conflito",
-            HttpStatusCode.UnprocessableEntity => "Entidade inválida",
-            _ => "Erro"
+            HttpStatusCode.BadRequest => "Invalid request",
+            HttpStatusCode.Unauthorized => "Unauthorized",
+            HttpStatusCode.Forbidden => "Forbidden",
+            HttpStatusCode.NotFound => "Resource not found",
+            HttpStatusCode.Conflict => "Conflict",
+            HttpStatusCode.UnprocessableEntity => "Invalid entity",
+            _ => "Error"
         };
     }
 }

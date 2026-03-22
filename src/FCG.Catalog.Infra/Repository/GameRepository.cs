@@ -1,28 +1,34 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using FCG.Catalog.Domain.Models;
 using FCG.Catalog.Infra.Context;
+using FCG.Catalog.Domain.Models.Catalog;
 
 namespace FCG.Catalog.Infra.Repository
 {
     public class GameRepository(ApplicationDbContext context)
-        : EFRepository<Game>(context), IGameRepository
+        : Repository<Game>(context), IGameRepository
     {
-        public async Task<Guid> Create(Game game)
+        public Guid Create(Game game)
         {
-            await Register(game);
+            Add(game);
             return game.Id;
         }
 
-        public async Task<IEnumerable<Game>> GetAll() => await Get();
+        public Task<IEnumerable<Game>> GetAll() => base.GetAll();
 
-        public async Task<Game?> GetById(Guid id) => await _dbSet.Include(x => x.);
+        public Task<Game?> GetById(Guid id) => base.GetById(id);
 
         public async Task<Game?> GetByName(string name)
             => await _dbSet.AsNoTracking().Where(u => u.Name == name)
                 .FirstOrDefaultAsync();
 
-        public async Task<bool> Update(Game game) => await Edit(game);
+        public void Update(Game game)
+        {
+            base.Update(game);
+        }
 
-        public async Task<bool> Remove(Game game) => await Delete(game);
+        public void Remove(Game game)
+        {
+            Delete(game);
+        }
     }
 }

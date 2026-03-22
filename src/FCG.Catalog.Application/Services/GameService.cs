@@ -1,9 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using FCG.Catalog.Application.Interfaces;
+using FCG.Catalog.Domain.Models.Catalog;
 using FCG.Catalog.Domain.Validation;
 using FCG.Catalog.Infra.Repository;
 using FCG.Catalog.Domain.Inputs;
-using FCG.Catalog.Domain.Models;
 using FCG.Catalog.Domain.Web;
 using AutoMapper;
 
@@ -19,19 +19,21 @@ namespace FCG.Catalog.Application.Services
             }
             catch (ValidationException ex)
             {
-                return BadRequest<Guid?>($"Dados de jogo inválidos: {ex.Message}");
+                return BadRequest<Guid?>($"Invalid game data: {ex.Message}");
             }
 
             var gameExists = await _repository.GetByName(gameRegisterDto.Name);
             
             if (gameExists is not null)
-                return BadRequest<Guid?>("Jogo já cadastrado.");
+                return BadRequest<Guid?>("Game already registered.");
 
             var game = _mapper.Map<Game>(gameRegisterDto);
 
-            var id = await _repository.Create(game);
+            var id = _repository.Create(game);
 
-            return Created<Guid?>(id, "Jogo registrado com sucesso.");
+            await _repository.SaveChangesAsync();
+
+            return Created<Guid?>(id, "Game created successfully.");
         }
 
         public async Task<IApiResponse<bool>> Remove(Guid id)
@@ -39,11 +41,13 @@ namespace FCG.Catalog.Application.Services
             var game = await _repository.GetById(id);
 
             if (game is null)
-                return NotFound<bool>("Jogo não encontrado para remoção.");
+                return NotFound<bool>("Game not found for removal.");
 
             game.Delete();
 
-            var removed = await _repository.Remove(game);
+            _repository.Remove(game); // No-op alignment
+
+            await _repository.SaveChangesAsync();
 
             return NoContent();
         }
@@ -58,7 +62,7 @@ namespace FCG.Catalog.Application.Services
             var game = await _repository.GetById(id);
 
             return game is null
-                ? NotFound<GameResponseDto?>("Jogo não encontrado.")
+                ? NotFound<GameResponseDto?>("Game not found.")
                 : Ok<GameResponseDto?>(_mapper.Map<GameResponseDto>(game));
         }
 
@@ -67,11 +71,13 @@ namespace FCG.Catalog.Application.Services
             var game = await _repository.GetById(id);
 
             if (game is null)
-                return NotFound<bool>("Jogo não encontrado para atualização.");
+                return NotFound<bool>("Game not found for update.");
 
-            game.Update(updateDto.Name, updateDto.Platform, updateDto.PublisherName, updateDto.Description, updateDto.Price);
+            game.Update(updateDto.Description, updateDto.Price, updateDto.IsAvailable);
 
-            await _repository.Update(game);
+            _repository.Update(game); // No-op alignment
+
+            await _repository.SaveChangesAsync();
             
             return NoContent();
         }

@@ -11,4 +11,9 @@
 		<PackageReference Include="mediatr" Version="8.0.0" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Folder Include="Cart\" />
+	  <Folder Include="Catalog\" />
+	</ItemGroup>
+
 </Project>

@@ -1,4 +1,4 @@
-﻿using FCG.Catalog.Domain.Models;
+﻿using FCG.Catalog.Domain.Models.Catalog;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -15,6 +15,7 @@ namespace FCG.Catalog.Infra.Configuration
             builder.Property(p => p.PublisherName).HasColumnType("VARCHAR(100)").IsRequired();
             builder.Property(p => p.Description).HasColumnType("VARCHAR(100)").IsRequired();
             builder.Property(p => p.Price).HasColumnType("DECIMAL(12,2)").IsRequired();
+            builder.Property(p => p.IsAvailable).HasColumnType("bit").IsRequired();
         }
     }
 }

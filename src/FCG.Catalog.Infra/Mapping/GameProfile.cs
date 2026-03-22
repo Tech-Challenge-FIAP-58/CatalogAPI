@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using FCG.Catalog.Domain.Inputs;
-using FCG.Catalog.Domain.Models;
+using FCG.Catalog.Domain.Models.Catalog;
 
 namespace FCG.Catalog.Infra.Mapping;
 
@@ -30,6 +30,16 @@ public class GameProfile : Profile
             .ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
 
         CreateMap<Game, GameResponseDto>()
-            .ConstructUsing(g => new GameResponseDto(g.Id, g.Name, g.Platform, g.PublisherName, g.Description, g.Price, g.CreatedAt));
+            .ConstructUsing(g => new GameResponseDto
+            {
+                Id = g.Id,
+                Name = g.Name,
+                Platform = g.Platform,
+                PublisherName = g.PublisherName,
+                Description = g.Description,
+                Price = g.Price,
+                IsAvailable = g.IsAvailable,
+                CreatedAtUtc = g.CreatedAt
+            });
     }
 }

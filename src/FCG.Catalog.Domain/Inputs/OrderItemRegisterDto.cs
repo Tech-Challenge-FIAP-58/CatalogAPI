@@ -1,8 +1,9 @@
-﻿namespace FCG.Catalog.Domain.Inputs;
+﻿using System.ComponentModel.DataAnnotations;
 
-public class OrderItemRegisterDto
+namespace FCG.Catalog.Domain.Inputs;
+
+public sealed record class OrderItemRegisterDto
 {
+    [Required]
     public required Guid GameId { get; set; }
-    public required string GameName { get; set; }
-
 }

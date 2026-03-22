@@ -1,25 +1,32 @@
-﻿using FCG.Catalog.Application.Interfaces;
-using FCG.Catalog.Application.Services;
+﻿using FCG.Catalog.Application.Services;
+using FCG.Catalog.Application.Interfaces;
 using FCG.Catalog.Domain.Inputs;
+using FCG.Catalog.Domain.Events;
+using FCG.Catalog.Domain.Models.Catalog;
+using OrderAggregate = FCG.Catalog.Domain.Models.Order.Order;
 using FCG.Catalog.Infra.Repository;
-using System.Net;
+using AutoMapper;
 using Moq;
-using FCG.Core.Integration;
+using System.Net;
 
 namespace FCG.Catalog.Tests
 {
 	public class OrderTests
 	{
-		private readonly Mock<IOrderRepository> _repositoryMock;
-		private readonly Mock<IOrderPlacedEventProducer> _eventProducerMock;
+        private readonly Mock<IOrderRepository> _repositoryMock;
+     private readonly Mock<IGameRepository> _gameRepositoryMock;
+     private readonly Mock<IOrderPlacedEventProducer> _orderPlacedEventProducerMock;
+		private readonly Mock<IMapper> _mapperMock;
 		private readonly OrderService _sut;
 
 		public OrderTests()
 		{
-			_repositoryMock = new Mock<IOrderRepository>();
-			_eventProducerMock = new Mock<IOrderPlacedEventProducer>();
+         _repositoryMock = new Mock<IOrderRepository>();
+          _gameRepositoryMock = new Mock<IGameRepository>();
+          _orderPlacedEventProducerMock = new Mock<IOrderPlacedEventProducer>();
+			_mapperMock = new Mock<IMapper>();
 
-			_sut = new OrderService(_repositoryMock.Object, _eventProducerMock.Object);
+            _sut = new OrderService(_repositoryMock.Object, _gameRepositoryMock.Object, _orderPlacedEventProducerMock.Object, _mapperMock.Object);
 		}
 
 		[Fact]
@@ -28,31 +35,35 @@ namespace FCG.Catalog.Tests
 			// Arrange
 			var orderId = Guid.NewGuid();
 			var userId = 123;
-			var gameId = Guid.NewGuid();
-
-			_repositoryMock.Setup(r => r.GetById(orderId)).ReturnsAsync(new OrderResponseDto
-			(
-				orderId,
-				DateTime.Now,
-				userId,
+            var gameId = Guid.NewGuid();
+            var itemSnapshot = new OrderItemSnapshot(
 				gameId,
-				150.00M,
-				"Pending",
-				"John Doe",
-				"4111111111111111",
-				"12/25",
-				"123"
-			));
+				"Game",
+				"Platform",
+				"Publisher",
+				"Description",
+				150.00M);
+         var order = OrderAggregate.Create(DateTime.UtcNow, userId, [itemSnapshot]);
+			var orderResponse = new OrderResponseDto(
+				order.Id,
+				order.OrderDate,
+				order.UserId,
+				order.Total,
+				order.Status,
+				order.Items.Select(item => item.ToSnapshot()).ToList());
+
+			_repositoryMock.Setup(r => r.GetById(orderId)).ReturnsAsync(order);
+			_mapperMock.Setup(m => m.Map<OrderResponseDto>(order)).Returns(orderResponse);
 
 			// Act
 			var response = await _sut.GetById(orderId);
 
 			// Assert
 			Assert.NotNull(response);
-			Assert.Equal(orderId, response!.Id);
-			Assert.Equal(123, response.UserId);
-			Assert.Equal(150.00M, response.Price);
-			Assert.Equal("Pending", response.PaymentStatus);
+            Assert.NotNull(response.ResultValue);
+			Assert.Equal(order.Id, response.ResultValue!.Id);
+			Assert.Equal(123, response.ResultValue.UserId);
+			Assert.Equal(150.00M, response.ResultValue.Total);
 		}
 
 		[Fact]
@@ -60,11 +71,32 @@ namespace FCG.Catalog.Tests
 		{
 			// Arrange
 			var orderId = Guid.NewGuid();
+          var itemSnapshot = new OrderItemSnapshot(
+				Guid.NewGuid(),
+				"Game",
+				"Platform",
+				"Publisher",
+				"Description",
+				150.00M);
 			var updateDto = new OrderUpdateDto
 			{
-				PaymentStatus = "Completed"
+				OrderDate = DateTime.UtcNow,
+				UserId = 123,
+				Total = 150.00M,
+				OrderGames =
+				[
+                 new OrderItemRegisterDto
+					{
+                        GameId = itemSnapshot.GameId
+					}
+				]
 			};
-			_repositoryMock.Setup(r => r.Update(orderId, updateDto)).ReturnsAsync(true);
+          var order = OrderAggregate.Create(updateDto.OrderDate, updateDto.UserId, [itemSnapshot]);
+			_repositoryMock.Setup(r => r.GetById(orderId)).ReturnsAsync(order);
+            var game = Game.Create(itemSnapshot.Name, itemSnapshot.Platform, itemSnapshot.PublisherName, itemSnapshot.Description, itemSnapshot.Price);
+			game = Game.Rehydrate(itemSnapshot.GameId, game.Name, game.Platform, game.PublisherName, game.Description, game.Price, true, DateTime.UtcNow);
+			_gameRepositoryMock.Setup(r => r.GetById(itemSnapshot.GameId)).ReturnsAsync(game);
+         _repositoryMock.Setup(r => r.Update(orderId, order));
 
 			// Act
 			var response = await _sut.Update(orderId, updateDto);
@@ -80,30 +112,34 @@ namespace FCG.Catalog.Tests
 			var id = Guid.NewGuid();
 
             // Arrange
-            var orderRegisterDto = new OrderRegisterDto
+         var orderRegisterDto = new OrderRegisterDto
 			{
-				OrderDate = DateTime.Now,
+				OrderDate = DateTime.UtcNow,
 				UserId = 123,
-				Price = 150.00M,
-				PaymentStatus = "Pending",
-				CardName = "John Doe",
-				CardNumber = "4111111111111111",
-				ExpirationDate = "12/25",
-				Cvv = "123"
+				OrderGames =
+				[
+                 new OrderItemRegisterDto
+					{
+                        GameId = Guid.NewGuid()
+					}
+				]
 			};
 
-			_repositoryMock.Setup(r => r.Create(orderRegisterDto)).ReturnsAsync(id);
+			var game = Game.Create("Game", "Platform", "Publisher", "Description", 150.00M);
+			game = Game.Rehydrate(orderRegisterDto.OrderGames[0].GameId, game.Name, game.Platform, game.PublisherName, game.Description, game.Price, true, DateTime.UtcNow);
+
+			_gameRepositoryMock.Setup(r => r.GetById(orderRegisterDto.OrderGames[0].GameId)).ReturnsAsync(game);
+
+          _repositoryMock.Setup(r => r.Create(It.IsAny<OrderAggregate>())).Returns(id);
 
 			// Act
 			var response = await _sut.Create(orderRegisterDto);
 
 			// Assert
 			Assert.True(response.IsSuccess);
-			Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+           Assert.Equal(HttpStatusCode.Created, response.StatusCode);
 			Assert.Equal(id, response.ResultValue);
-			Assert.Equal($"Ordem #{id} criada com sucesso", response.Message);
-
-			_eventProducerMock.Verify(ep => ep.Send(It.IsAny<OrderPlacedEvent>()), Times.Once);
+           Assert.Equal("Order created successfully.", response.Message);
 		}
 	}
 }

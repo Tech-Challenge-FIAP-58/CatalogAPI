@@ -4,14 +4,14 @@ public class OrderPlacedEvent
 {
     public int ClientId { get; set; }
     public Guid OrderId { get; set; }
-    public int PaymentMethod { get; set; }
+    public PaymentMethod PaymentMethod { get; set; }
     public decimal Amount { get; set; }
     public string CardName { get; set; }
     public string CardNumber { get; set; }
     public string ExpirationDate { get; set; }
     public string Cvv { get; set; }
 
-    public OrderPlacedEvent(int clientId, Guid orderId, int paymentMethod, decimal amount, string cardName,
+    public OrderPlacedEvent(int clientId, Guid orderId, PaymentMethod paymentMethod, decimal amount, string cardName,
     string cardNumber, string expirationDate, string cvv)
     {
         ClientId = clientId;
@@ -23,4 +23,9 @@ public class OrderPlacedEvent
         ExpirationDate = expirationDate;
         Cvv = cvv;
     }
+}
+
+public enum PaymentMethod
+{
+    CreditCard = 1,
 }

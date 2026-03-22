@@ -1,54 +1,31 @@
 ﻿using FCG.Catalog.Application.Interfaces;
-using FCG.Catalog.Domain.Inputs;
 using FCG.Core.Integration;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 
 namespace FCG.Catalog.Application.Consumers
 {
-    public class PaymentProcessedEventConsumer(ILogger<PaymentProcessedEventConsumer> logger, IOrderService orderService, ICatalogService catalogService) : IConsumer<PaymentProcessedEvent>
+    public class PaymentProcessedEventConsumer(ILogger<PaymentProcessedEventConsumer> logger, IOrderService orderService) : IConsumer<PaymentProcessedEvent>
     {
-		public async Task Consume(ConsumeContext<PaymentProcessedEvent> context)
+        public async Task Consume(ConsumeContext<PaymentProcessedEvent> context)
         {
-            logger.LogInformation("Pagamento processo para ordem #{}", context.Message.OrderId);
+            logger.LogInformation("Payment processed for order #{OrderId}", context.Message.OrderId);
 
-            var order = await orderService.GetById(context.Message.OrderId) 
-                ?? throw new NullReferenceException("Ordem não encontrada");
+            var updateResponse = await orderService.UpdatePaymentStatus(context.Message.OrderId, context.Message.Status);
 
-			var status = context.Message.Status == PaymentResultStatus.Approved
-                ? "Approved"
-                : "Denied";
-
-            var orderUpdate = new OrderUpdateDto
+            if (!updateResponse.IsSuccess)
             {
-                OrderDate = order.OrderDate,
-                UserId = order.UserId,
-                GameId = order.GameId,
-                Total = order.Price,
-                PaymentStatus = status,
-                CardName = order.CardName,
-                CardNumber = order.CardNumber,
-                ExpirationDate = order.ExpirationDate,
-                Cvv = order.Cvv
-            };
-
-            await orderService.Update(context.Message.OrderId, orderUpdate);
+                logger.LogWarning("Failed to update payment status for order #{OrderId}: {Message}", context.Message.OrderId, updateResponse.Message);
+                return;
+            }
 
             if (context.Message.Status == PaymentResultStatus.Approved)
             {
-                var catalogRegister = new CatalogRegisterDto
-                {
-                    UserId = order.UserId,
-                    GameId = order.GameId,
-                    Price = order.Price
-                };
-
-                await catalogService.Create(catalogRegister);
-				logger.LogInformation("✅ Pagamento aprovado, jogo adicionado ao catálogo");
+                logger.LogInformation("✅ Payment approved");
             }
             else
             {
-                logger.LogInformation("❌ Pagamento negado");
+                logger.LogInformation("❌ Payment denied");
             }
         }
     }

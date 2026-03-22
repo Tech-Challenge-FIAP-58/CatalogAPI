@@ -1,12 +1,12 @@
 using AutoMapper;
 using FCG.Catalog.Application.Services;
 using FCG.Catalog.Domain.Inputs;
-using FCG.Catalog.Domain.Models;
 using FCG.Catalog.Infra.Mapping;
 using FCG.Catalog.Infra.Repository;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using System.Net;
+using FCG.Catalog.Domain.Models.Catalog;
 
 namespace FCG.Catalog.Tests
 {
@@ -40,10 +40,10 @@ namespace FCG.Catalog.Tests
 				Platform = "Playstation 5",
 				PublisherName = "Electronic Arts",
 				Description = "The next evolution of football.",
-				Price = 299.90
+              Price = 299.90M
 			};
 
-			_repositoryMock.Setup(r => r.Create(It.IsAny<Game>())).ReturnsAsync(id);
+            _repositoryMock.Setup(r => r.Create(It.IsAny<Game>())).Returns(id);
 
 			// Act
 			var response = await _sut.Create(dto);
@@ -52,17 +52,17 @@ namespace FCG.Catalog.Tests
 			Assert.True(response.IsSuccess);
 			Assert.Equal(HttpStatusCode.Created, response.StatusCode);
 			Assert.Equal(id, response.ResultValue);
-			Assert.Equal("Jogo registrado com sucesso.", response.Message);
+         Assert.Equal("Game created successfully.", response.Message);
 		}
 
 		[Fact]
 		public async Task RemoveGameTest()
 		{
 			// Arrange
-			var game = Game.Create("Game 1", "PC", "Publisher 1", "Description 1", 59.99);
+          var game = Game.Create("Game 1", "PC", "Publisher 1", "Description 1", 59.99M);
 
 			_repositoryMock.Setup(r => r.GetById(game.Id)).ReturnsAsync(game);
-			_repositoryMock.Setup(r => r.Remove(It.IsAny<Game>())).ReturnsAsync(true);
+         _repositoryMock.Setup(r => r.Remove(It.IsAny<Game>()));
 
 			// Act
 			var response = await _sut.Remove(game.Id);
@@ -78,8 +78,8 @@ namespace FCG.Catalog.Tests
 			// Arrange
 			IEnumerable<Game> games =
 			[
-				Game.Create("Game 1", "PC", "Publisher 1", "Description 1", 59.99),
-				Game.Create("Game 2", "Console", "Publisher 2", "Description 2", 69.99)
+             Game.Create("Game 1", "PC", "Publisher 1", "Description 1", 59.99M),
+				Game.Create("Game 2", "Console", "Publisher 2", "Description 2", 69.99M)
 			];
 			_repositoryMock.Setup(r => r.GetAll()).ReturnsAsync(games);
 
@@ -96,7 +96,7 @@ namespace FCG.Catalog.Tests
 		public async Task GetGameByIdTest()
 		{
 			// Arrange
-			var game = Game.Create("Game 1", "PC", "Publisher 1", "Description 1", 59.99);
+          var game = Game.Create("Game 1", "PC", "Publisher 1", "Description 1", 59.99M);
 
 			_repositoryMock.Setup(r => r.GetById(game.Id)).ReturnsAsync(game);
 
@@ -113,17 +113,15 @@ namespace FCG.Catalog.Tests
 		public async Task UpdateGameTest()
 		{
 			// Arrange
-			var game = Game.Create("Game 1", "PC", "Publisher 1", "Description 1", 59.99);
+          var game = Game.Create("Game 1", "PC", "Publisher 1", "Description 1", 59.99M);
 			var updateDto = new GameUpdateDto
 			{
-				Name = "Updated Game",
-				Platform = "Updated Platform",
-				PublisherName = "Updated Publisher",
 				Description = "Updated Description",
-				Price = 79.99
+               Price = 79.99M,
+				IsAvailable = false
 			};
 			_repositoryMock.Setup(r => r.GetById(game.Id)).ReturnsAsync(game);
-			_repositoryMock.Setup(r => r.Update(It.IsAny<Game>())).ReturnsAsync(true);
+         _repositoryMock.Setup(r => r.Update(It.IsAny<Game>()));
 
 			// Act
 			var response = await _sut.Update(game.Id, updateDto);

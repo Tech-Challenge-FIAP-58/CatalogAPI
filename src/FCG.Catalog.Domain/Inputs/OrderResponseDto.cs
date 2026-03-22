@@ -1,15 +1,14 @@
-﻿namespace FCG.Catalog.Domain.Inputs
+﻿using FCG.Catalog.Domain.Enums;
+using FCG.Catalog.Domain.Events;
+
+namespace FCG.Catalog.Domain.Inputs
 {
     public sealed record OrderResponseDto(
         Guid Id,
         DateTime OrderDate,
         int UserId,
-        Guid GameId,
-        decimal Price,
-        string PaymentStatus,
-        string CardName,
-        string CardNumber,
-        string ExpirationDate,
-        string Cvv
+        decimal Total,
+        OrderStatus Status,
+        IReadOnlyCollection<OrderItemSnapshot> Items
     );
 }

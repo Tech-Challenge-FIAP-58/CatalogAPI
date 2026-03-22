@@ -1,13 +1,14 @@
-﻿using FCG.Catalog.Domain.Models;
+﻿using FCG.Catalog.Domain.Common;
 
 namespace FCG.Catalog.Infra.Repository
 {
-    public interface IRepository<T> where T : EntityBase
+    public interface IRepository<TEntity> where TEntity : EntityBase, IAggregateRoot
     {
-        Task<IEnumerable<T>> Get();
-        Task<T?> Get(Guid id);
-        Task<bool> Register(T entity);
-        Task<bool> Edit(T entity);
-        Task<bool> Delete(T entity);
+        Task<IEnumerable<TEntity>> GetAll();
+        Task<TEntity?> GetById(Guid id);
+        void Add(TEntity entity);
+        void Update(TEntity entity);
+        void Delete(TEntity entity);
+        Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
     }
 }
