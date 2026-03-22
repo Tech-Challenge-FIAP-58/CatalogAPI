@@ -12,10 +12,35 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using OpenTelemetry.Metrics;
+using OpenTelemetry.Trace;
+using OpenTelemetry.Resources;
+using Serilog;
+using Serilog.Sinks.Grafana.Loki;
 using System.Reflection;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
+
+var serviceName = "catalog";
+
+Log.Logger = new LoggerConfiguration()
+    .ReadFrom.Configuration(builder.Configuration)
+    .WriteTo.Console()
+    .WriteTo.GrafanaLoki("http://loki:3100",
+        labels: new[] { new LokiLabel { Key = "service", Value = serviceName } })
+    .CreateLogger();
+
+builder.Logging.ClearProviders();
+builder.Logging.AddSerilog(Log.Logger);
+
+builder.Services.AddOpenTelemetry()
+    .WithMetrics(metrics => metrics
+        .SetResourceBuilder(ResourceBuilder.CreateDefault().AddService(serviceName))
+        .AddAspNetCoreInstrumentation()
+        .AddHttpClientInstrumentation()
+        .AddRuntimeInstrumentation()
+        .AddPrometheusExporter());
 
 var configSection = builder.Configuration.GetSection("Jwt");
 builder.Services.Configure<JwtConfigurations>(configSection);
@@ -40,20 +65,20 @@ builder.Services.AddSwaggerGen(c =>
         In = ParameterLocation.Header,
         Description = "Insira o token JWT"
     });
-	c.AddSecurityRequirement(new OpenApiSecurityRequirement
-	{
-		{
-			new OpenApiSecurityScheme
-			{
-				Reference = new OpenApiReference
-				{
-					Type = ReferenceType.SecurityScheme,
-					Id = JwtBearerDefaults.AuthenticationScheme
-				}
-			},
-			[]
-		}
-	});
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = JwtBearerDefaults.AuthenticationScheme
+                }
+            },
+            []
+        }
+    });
 });
 
 builder.Services.AddAutoMapper(
@@ -79,56 +104,48 @@ builder.AddMessageBusConfiguration();
 builder.InitilizeRetrySettings();
 builder.AddMassTransitSettings();
 
-// repositório de banco de dados
 builder.Services.AddScoped<ICatalogRepository, CatalogRepository>();
 builder.Services.AddScoped<IGameRepository, GameRepository>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 
-// serviço de apoio para as iterações com o banco
 builder.Services.AddScoped<ICatalogService, CatalogService>();
 builder.Services.AddScoped<IGameService, GameService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 
-// producer da fila OrderPlacedEvent
 builder.Services.AddScoped<IOrderPlacedEventProducer, OrderPlacedEventProducer>();
 
-// JWT Settings
 builder.Services.AddAuthorization();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-	.AddJwtBearer(opt =>
-	{
-		opt.RequireHttpsMetadata = false;
-		opt.TokenValidationParameters = new TokenValidationParameters
-		{
-			ValidateIssuer = true,
-			ValidateAudience = true,
-			ValidateLifetime = true,
-			ClockSkew = TimeSpan.Zero,
-
-			ValidIssuer = jwtConfig.Issuer,
-			ValidAudience = jwtConfig.Audience,
-			IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtConfig.Key))
-		};
-	});
+    .AddJwtBearer(opt =>
+    {
+        opt.RequireHttpsMetadata = false;
+        opt.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ClockSkew = TimeSpan.Zero,
+            ValidIssuer = jwtConfig.Issuer,
+            ValidAudience = jwtConfig.Audience,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtConfig.Key))
+        };
+    });
 
 var app = builder.Build();
 
 #region MIGRATION COM RETRY
-// Observação: este bloco roda **antes** do servidor iniciar. Ele tenta aplicar
-// migrations até 'maxAttempts' vezes, com backoff exponencial (limitado).
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
     var logger = services.GetRequiredService<ILogger<Program>>();
     var dbContext = services.GetRequiredService<ApplicationDbContext>();
-
     const int maxAttempts = 10;
     for (int attempt = 1; attempt <= maxAttempts; attempt++)
     {
         try
         {
             logger.LogInformation("Tentando aplicar migrations (tentativa {Attempt}/{MaxAttempts})...", attempt, maxAttempts);
-            dbContext.Database.Migrate(); // aplica migrations pendentes (síncrono)
+            dbContext.Database.Migrate();
             logger.LogInformation("Migrations aplicadas com sucesso.");
             break;
         }
@@ -137,20 +154,17 @@ using (var scope = app.Services.CreateScope())
             logger.LogWarning(ex, "Falha ao aplicar migrations na tentativa {Attempt}.", attempt);
             if (attempt == maxAttempts)
             {
-                logger.LogError(ex, "Não foi possível aplicar migrations após {MaxAttempts} tentativas. Encerrando aplicação.", maxAttempts);
-                throw; // aborta a inicialização (você pode optar por não lançar e continuar)
+                logger.LogError(ex, "NÃ£o foi possÃ­vel aplicar migrations apÃ³s {MaxAttempts} tentativas. Encerrando aplicaÃ§Ã£o.", maxAttempts);
+                throw;
             }
-            // backoff simples (2s * attempt), limitado a 30s
             var delay = TimeSpan.FromSeconds(Math.Min(30, 2 * attempt));
-            logger.LogInformation("Aguardando {Delay} antes da próxima tentativa...", delay);
-            // usa Task.Delay para não bloquear a thread
+            logger.LogInformation("Aguardando {Delay} antes da prÃ³xima tentativa...", delay);
             await Task.Delay(delay);
         }
     }
 }
 #endregion
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -159,10 +173,9 @@ if (app.Environment.IsDevelopment())
 
 app.MapGet("/health", () => Results.Ok("Healthy")).ExcludeFromDescription();
 
+app.UseOpenTelemetryPrometheusScrapingEndpoint();
 app.UseHttpsRedirection();
-
 app.UseAuthorization();
-
 app.MapControllers();
 
 app.Run();

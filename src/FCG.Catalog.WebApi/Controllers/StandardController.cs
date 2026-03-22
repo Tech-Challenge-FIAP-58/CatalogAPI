@@ -7,7 +7,7 @@ using System.Net;
 namespace FCG.Catalog.WebApi.Controllers
 {
 	[ApiController]
-    [Route("v1/[controller]")]
+    [Route("[controller]")]
     public class StandardController : ControllerBase
     {
         protected async Task<IActionResult> TryMethodAsync<TResult>(
