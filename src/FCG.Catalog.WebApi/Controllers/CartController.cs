@@ -7,7 +7,7 @@ namespace FCG.Catalog.WebApi.Controllers
 {
     public class CartController(ICartService service, ILogger<CartController> logger) : StandardController
     {
-        //[Authorize]
+        [Authorize]
         [HttpGet("GetCartByUserId/{userId:int}")]
         public Task<IActionResult> GetByUserId(int userId)
         {
@@ -15,7 +15,7 @@ namespace FCG.Catalog.WebApi.Controllers
             return TryMethodAsync(() => service.GetByUserId(userId), logger);
         }
 
-        //[Authorize]
+        [Authorize]
         [HttpPost("AddItemToCart")]
         public Task<IActionResult> AddItem([FromBody] CartAddItemDto dto)
         {
@@ -23,7 +23,7 @@ namespace FCG.Catalog.WebApi.Controllers
             return TryMethodAsync(() => service.AddItem(dto), logger);
         }
 
-        //[Authorize]
+        [Authorize]
         [HttpDelete("RemoveItemFromCart")]
         public Task<IActionResult> RemoveItem([FromBody] CartRemoveItemDto dto)
         {
@@ -31,7 +31,7 @@ namespace FCG.Catalog.WebApi.Controllers
             return TryMethodAsync(() => service.RemoveItem(dto), logger);
         }
 
-        //[Authorize]
+        [Authorize]
         [HttpDelete("ClearCart/{userId:int}")]
         public Task<IActionResult> Clear(int userId)
         {
@@ -39,7 +39,7 @@ namespace FCG.Catalog.WebApi.Controllers
             return TryMethodAsync(() => service.Clear(userId), logger);
         }
 
-        //[Authorize]
+        [Authorize]
         [HttpPost("CheckoutCart")]
         public Task<IActionResult> Checkout([FromBody] CheckoutCartDto dto)
         {

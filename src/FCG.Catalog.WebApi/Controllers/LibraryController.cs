@@ -6,7 +6,7 @@ namespace FCG.Catalog.WebApi.Controllers
 {
     public class LibraryController(IGameLibraryService service, ILogger<LibraryController> logger) : StandardController
     {
-        //[Authorize]
+        [Authorize]
         [HttpGet("GetLibraryGamesByUserId/{userId:int}")]
         public Task<IActionResult> GetByUserId(int userId)
         {
