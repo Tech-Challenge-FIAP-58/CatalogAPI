@@ -75,11 +75,13 @@ builder.AddMassTransitSettings();
 // repositório de banco de dados
 builder.Services.AddScoped<ICartRepository, CartRepository>();
 builder.Services.AddScoped<IGameRepository, GameRepository>();
+builder.Services.AddScoped<IGameLibraryRepository, GameLibraryRepository>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 
 // serviço de apoio para as iterações com o banco
 builder.Services.AddScoped<ICartService, CartService>();
 builder.Services.AddScoped<IGameService, GameService>();
+builder.Services.AddScoped<IGameLibraryService, GameLibraryService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 
 // producer da fila OrderPlacedEvent

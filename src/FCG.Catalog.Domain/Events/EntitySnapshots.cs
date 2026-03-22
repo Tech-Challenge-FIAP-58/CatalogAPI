@@ -55,3 +55,20 @@ public sealed record CartSnapshot(
     DateTime? DeletedAt,
     bool IsDeleted,
     CartStatus Status);
+
+public sealed record GameLibraryGameSnapshot(
+    Guid GameId,
+    string Name,
+    string Platform,
+    string PublisherName,
+    string Description,
+    decimal UnitPrice);
+
+public sealed record GameLibrarySnapshot(
+    Guid Id,
+    int UserId,
+    IReadOnlyCollection<GameLibraryGameSnapshot> Games,
+    DateTime CreatedAt,
+    DateTime? UpdatedAt,
+    DateTime? DeletedAt,
+    bool IsDeleted);
