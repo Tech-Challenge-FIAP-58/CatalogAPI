@@ -56,6 +56,49 @@ namespace FCG.Catalog.Tests
 		}
 
 		[Fact]
+		public async Task Create_ShouldReturnBadRequest_WhenDtoIsInvalid()
+		{
+			var dto = new GameRegisterDto
+			{
+				Name = "A",
+				Platform = "P",
+				PublisherName = "E",
+				Description = "D",
+				Price = 0
+			};
+
+			var response = await _sut.Create(dto);
+
+			Assert.False(response.IsSuccess);
+			Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+			Assert.StartsWith("Invalid game data:", response.Message);
+			_repositoryMock.Verify(r => r.Create(It.IsAny<Game>()), Times.Never);
+		}
+
+		[Fact]
+		public async Task Create_ShouldReturnBadRequest_WhenGameAlreadyExists()
+		{
+			var dto = new GameRegisterDto
+			{
+				Name = "EA FC 26",
+				Platform = "Playstation 5",
+				PublisherName = "Electronic Arts",
+				Description = "The next evolution of football.",
+				Price = 299.90M
+			};
+			var existing = Game.Create(dto.Name, dto.Platform, dto.PublisherName, dto.Description, dto.Price);
+
+			_repositoryMock.Setup(r => r.GetByName(dto.Name)).ReturnsAsync(existing);
+
+			var response = await _sut.Create(dto);
+
+			Assert.False(response.IsSuccess);
+			Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+			Assert.Equal("Game already registered.", response.Message);
+			_repositoryMock.Verify(r => r.Create(It.IsAny<Game>()), Times.Never);
+		}
+
+		[Fact]
 		public async Task RemoveGameTest()
 		{
 			// Arrange
@@ -70,6 +113,20 @@ namespace FCG.Catalog.Tests
 			// Assert
 			Assert.True(response.IsSuccess);
 			Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+		}
+
+		[Fact]
+		public async Task Remove_ShouldReturnNotFound_WhenGameDoesNotExist()
+		{
+			var id = Guid.NewGuid();
+			_repositoryMock.Setup(r => r.GetById(id)).ReturnsAsync((Game?)null);
+
+			var response = await _sut.Remove(id);
+
+			Assert.False(response.IsSuccess);
+			Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+			Assert.Equal("Game not found for removal.", response.Message);
+			_repositoryMock.Verify(r => r.Remove(It.IsAny<Game>()), Times.Never);
 		}
 
 		[Fact]
@@ -110,6 +167,19 @@ namespace FCG.Catalog.Tests
 		}
 
 		[Fact]
+		public async Task GetById_ShouldReturnNotFound_WhenGameDoesNotExist()
+		{
+			var id = Guid.NewGuid();
+			_repositoryMock.Setup(r => r.GetById(id)).ReturnsAsync((Game?)null);
+
+			var response = await _sut.GetById(id);
+
+			Assert.False(response.IsSuccess);
+			Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+			Assert.Equal("Game not found.", response.Message);
+		}
+
+		[Fact]
 		public async Task UpdateGameTest()
 		{
 			// Arrange
@@ -129,6 +199,26 @@ namespace FCG.Catalog.Tests
 			// Assert
 			Assert.True(response.IsSuccess);
 			Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+		}
+
+		[Fact]
+		public async Task Update_ShouldReturnNotFound_WhenGameDoesNotExist()
+		{
+			var id = Guid.NewGuid();
+			var updateDto = new GameUpdateDto
+			{
+				Description = "Updated Description",
+				Price = 79.99M,
+				IsAvailable = false
+			};
+			_repositoryMock.Setup(r => r.GetById(id)).ReturnsAsync((Game?)null);
+
+			var response = await _sut.Update(id, updateDto);
+
+			Assert.False(response.IsSuccess);
+			Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+			Assert.Equal("Game not found for update.", response.Message);
+			_repositoryMock.Verify(r => r.Update(It.IsAny<Game>()), Times.Never);
 		}
 	}
 }
