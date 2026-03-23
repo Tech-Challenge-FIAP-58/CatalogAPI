@@ -1,4 +1,5 @@
 ﻿using FCG.Catalog.Infra.Context;
+using FCG.Catalog.Domain.Repository;
 using Microsoft.EntityFrameworkCore;
 using OrderAggregate = FCG.Catalog.Domain.Models.Order.Order;
 

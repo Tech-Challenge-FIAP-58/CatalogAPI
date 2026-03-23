@@ -2,17 +2,30 @@
 using FCG.Catalog.Application.Interfaces;
 using FCG.Catalog.Domain.Events;
 using FCG.Catalog.Domain.Inputs;
+using FCG.Catalog.Domain.Repository;
 using FCG.Catalog.Domain.Validation;
 using FCG.Core.Integration;
 using OrderAggregate = FCG.Catalog.Domain.Models.Order.Order;
 using FCG.Catalog.Domain.Web;
-using FCG.Catalog.Infra.Repository;
 using System.ComponentModel.DataAnnotations;
 
 namespace FCG.Catalog.Application.Services
 {
-    public class OrderService(IOrderRepository _repository, IGameRepository _gameRepository, IOrderPlacedEventProducer _orderPlacedEventProducer, IMapper _mapper) : BaseService, IOrderService
+    public class OrderService : BaseService, IOrderCheckoutService, IOrderPaymentProcessingService, IOrderReadService, IOrderManagementService
     {
+        private readonly IOrderRepository _repository;
+        private readonly IGameCatalogLookupService _gameCatalogLookupService;
+        private readonly IOrderPlacedEventProducer _orderPlacedEventProducer;
+        private readonly IMapper _mapper;
+
+        public OrderService(IOrderRepository repository, IGameCatalogLookupService gameCatalogLookupService, IOrderPlacedEventProducer orderPlacedEventProducer, IMapper mapper)
+        {
+            _repository = repository;
+            _gameCatalogLookupService = gameCatalogLookupService;
+            _orderPlacedEventProducer = orderPlacedEventProducer;
+            _mapper = mapper;
+        }
+
         public async Task<IApiResponse<Guid?>> Create(OrderRegisterDto orderRegisterDto, CheckoutCartDto? checkoutDto = null)
         {
             try
@@ -37,7 +50,7 @@ namespace FCG.Catalog.Application.Services
 
             foreach (var gameId in gameIds)
             {
-                var game = await _gameRepository.GetById(gameId);
+                var game = await _gameCatalogLookupService.GetByIdForProcessing(gameId);
 
                 if (game is null)
                 {
@@ -171,7 +184,7 @@ namespace FCG.Catalog.Application.Services
 
             foreach (var gameId in gameIds)
             {
-                var game = await _gameRepository.GetById(gameId);
+                var game = await _gameCatalogLookupService.GetByIdForProcessing(gameId);
 
                 if (game is null)
                 {

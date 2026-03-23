@@ -1,9 +1,7 @@
 using FCG.Catalog.Application.Interfaces;
-using FCG.Catalog.Application.Producers;
-using FCG.Catalog.Application.Services;
 using FCG.Catalog.Domain.Mediatr;
 using FCG.Catalog.Infra.Context;
-using FCG.Catalog.Infra.Repository;
+using FCG.Catalog.WebApi.DependencyInjection;
 using FCG.Catalog.WebApi.Settings;
 using FCG.Core;
 using MediatR;
@@ -96,19 +94,11 @@ builder.AddMessageBusConfiguration();
 builder.InitilizeRetrySettings();
 builder.AddMassTransitSettings();
 
-// repositório de banco de dados
-builder.Services.AddScoped<ICartRepository, CartRepository>();
-builder.Services.AddScoped<IGameRepository, GameRepository>();
-builder.Services.AddScoped<IGameLibraryRepository, GameLibraryRepository>();
-builder.Services.AddScoped<IOrderRepository, OrderRepository>();
-
-// serviço de apoio para as iterações com o banco
-builder.Services.AddScoped<ICartService, CartService>();
-builder.Services.AddScoped<IGameService, GameService>();
-builder.Services.AddScoped<IGameLibraryService, GameLibraryService>();
-builder.Services.AddScoped<IOrderService, OrderService>();
-
-builder.Services.AddScoped<IOrderPlacedEventProducer, OrderPlacedEventProducer>();
+builder.Services
+    .AddCatalogModule()
+    .AddOrderModule()
+    .AddCartModule()
+    .AddLibraryModule();
 
 builder.Services.AddAuthorization();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

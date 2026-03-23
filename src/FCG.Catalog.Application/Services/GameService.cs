@@ -2,14 +2,14 @@
 using FCG.Catalog.Application.Interfaces;
 using FCG.Catalog.Domain.Models.Catalog;
 using FCG.Catalog.Domain.Validation;
-using FCG.Catalog.Infra.Repository;
 using FCG.Catalog.Domain.Inputs;
+using FCG.Catalog.Domain.Repository;
 using FCG.Catalog.Domain.Web;
 using AutoMapper;
 
 namespace FCG.Catalog.Application.Services
 {
-    public class GameService(IGameRepository _repository, IMapper _mapper) : BaseService, IGameService
+    public class GameService(IGameRepository _repository, IMapper _mapper) : BaseService, IGameCatalogLookupService, IGameReadService, IGameManagementService
     {
         public async Task<IApiResponse<Guid?>> Create(GameRegisterDto gameRegisterDto)
         {
@@ -64,6 +64,22 @@ namespace FCG.Catalog.Application.Services
             return game is null
                 ? NotFound<GameResponseDto?>("Game not found.")
                 : Ok<GameResponseDto?>(_mapper.Map<GameResponseDto>(game));
+        }
+
+        public async Task<GameLookupDto?> GetByIdForProcessing(Guid id)
+        {
+            var game = await _repository.GetById(id);
+
+            return game is null
+                ? null
+                : new GameLookupDto(
+                    game.Id,
+                    game.Name,
+                    game.Platform,
+                    game.PublisherName,
+                    game.Description,
+                    game.Price,
+                    game.IsAvailable);
         }
 
         public async Task<IApiResponse<bool>> Update(Guid id, GameUpdateDto updateDto)

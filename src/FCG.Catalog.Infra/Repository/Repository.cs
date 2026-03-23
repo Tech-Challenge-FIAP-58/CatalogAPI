@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using FCG.Catalog.Domain.Events;
 using FCG.Catalog.Domain.Common;
+using FCG.Catalog.Domain.Repository;
 using FCG.Catalog.Infra.Context;
 
 namespace FCG.Catalog.Infra.Repository

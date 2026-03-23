@@ -4,8 +4,7 @@ using FCG.Catalog.Application.Services;
 using FCG.Catalog.Domain.Enums;
 using FCG.Catalog.Domain.Events;
 using FCG.Catalog.Domain.Inputs;
-using FCG.Catalog.Domain.Models.Catalog;
-using FCG.Catalog.Infra.Repository;
+using FCG.Catalog.Domain.Repository;
 using FCG.Core.Integration;
 using Moq;
 using OrderAggregate = FCG.Catalog.Domain.Models.Order.Order;
@@ -16,7 +15,7 @@ namespace FCG.Catalog.Tests
 	public class OrderTests
 	{
         private readonly Mock<IOrderRepository> _repositoryMock;
-		private readonly Mock<IGameRepository> _gameRepositoryMock;
+        private readonly Mock<IGameCatalogLookupService> _gameCatalogLookupServiceMock;
 		private readonly Mock<IOrderPlacedEventProducer> _orderPlacedEventProducerMock;
 		private readonly Mock<IMapper> _mapperMock;
 		private readonly OrderService _sut;
@@ -24,11 +23,11 @@ namespace FCG.Catalog.Tests
 		public OrderTests()
        {
 			_repositoryMock = new Mock<IOrderRepository>();
-			_gameRepositoryMock = new Mock<IGameRepository>();
+          _gameCatalogLookupServiceMock = new Mock<IGameCatalogLookupService>();
 			_orderPlacedEventProducerMock = new Mock<IOrderPlacedEventProducer>();
 			_mapperMock = new Mock<IMapper>();
 
-          _sut = new OrderService(_repositoryMock.Object, _gameRepositoryMock.Object, _orderPlacedEventProducerMock.Object, _mapperMock.Object);
+          _sut = new OrderService(_repositoryMock.Object, _gameCatalogLookupServiceMock.Object, _orderPlacedEventProducerMock.Object, _mapperMock.Object);
 		}
 
 		[Fact]
@@ -158,7 +157,7 @@ namespace FCG.Catalog.Tests
            Assert.False(response.IsSuccess);
 			Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
 			Assert.Equal("Order already contains duplicated games.", response.Message);
-			_gameRepositoryMock.Verify(r => r.GetById(It.IsAny<Guid>()), Times.Never);
+          _gameCatalogLookupServiceMock.Verify(r => r.GetByIdForProcessing(It.IsAny<Guid>()), Times.Never);
 			_repositoryMock.Verify(r => r.Create(It.IsAny<OrderAggregate>()), Times.Never);
 		}
 
@@ -176,7 +175,7 @@ namespace FCG.Catalog.Tests
 				]
 			};
 
-            _gameRepositoryMock.Setup(r => r.GetById(missingGameId)).ReturnsAsync((Game?)null);
+            _gameCatalogLookupServiceMock.Setup(r => r.GetByIdForProcessing(missingGameId)).ReturnsAsync((GameLookupDto?)null);
 			var response = await _sut.Create(registerDto);
 
            Assert.False(response.IsSuccess);
@@ -192,7 +191,7 @@ namespace FCG.Catalog.Tests
 			var registerDto = BuildValidOrderRegisterDto(unavailableGameId);
 			var unavailableGame = BuildGame(unavailableGameId, "Unavailable game", 150.00M, false);
 
-			_gameRepositoryMock.Setup(r => r.GetById(unavailableGameId)).ReturnsAsync(unavailableGame);
+         _gameCatalogLookupServiceMock.Setup(r => r.GetByIdForProcessing(unavailableGameId)).ReturnsAsync(unavailableGame);
 
 			var response = await _sut.Create(registerDto);
 
@@ -220,7 +219,7 @@ namespace FCG.Catalog.Tests
 			};
 			var game = BuildGame(gameId, "Game", 150.00M, true);
 
-			_gameRepositoryMock.Setup(r => r.GetById(gameId)).ReturnsAsync(game);
+           _gameCatalogLookupServiceMock.Setup(r => r.GetByIdForProcessing(gameId)).ReturnsAsync(game);
 			_repositoryMock.Setup(r => r.Create(It.IsAny<OrderAggregate>())).Returns(createdOrderId);
 
 			var response = await _sut.Create(registerDto, checkoutDto);
@@ -249,7 +248,7 @@ namespace FCG.Catalog.Tests
 			var registerDto = BuildValidOrderRegisterDto(gameId);
 			var game = BuildGame(gameId, "Game", 150.00M, true);
 
-			_gameRepositoryMock.Setup(r => r.GetById(gameId)).ReturnsAsync(game);
+           _gameCatalogLookupServiceMock.Setup(r => r.GetByIdForProcessing(gameId)).ReturnsAsync(game);
 			_repositoryMock.Setup(r => r.Create(It.IsAny<OrderAggregate>())).Returns(createdOrderId);
 
 			var response = await _sut.Create(registerDto);
@@ -295,7 +294,7 @@ namespace FCG.Catalog.Tests
 			Assert.False(response.IsSuccess);
 			Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
 			Assert.Equal("Order not found.", response.Message);
-			_gameRepositoryMock.Verify(r => r.GetById(It.IsAny<Guid>()), Times.Never);
+          _gameCatalogLookupServiceMock.Verify(r => r.GetByIdForProcessing(It.IsAny<Guid>()), Times.Never);
 		}
 
 		[Fact]
@@ -323,7 +322,7 @@ namespace FCG.Catalog.Tests
 			Assert.False(response.IsSuccess);
 			Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
 			Assert.Equal("Order already contains duplicated games.", response.Message);
-			_gameRepositoryMock.Verify(r => r.GetById(It.IsAny<Guid>()), Times.Never);
+          _gameCatalogLookupServiceMock.Verify(r => r.GetByIdForProcessing(It.IsAny<Guid>()), Times.Never);
 			_repositoryMock.Verify(r => r.Update(It.IsAny<Guid>(), It.IsAny<OrderAggregate>()), Times.Never);
 		}
 
@@ -347,8 +346,8 @@ namespace FCG.Catalog.Tests
 			};
 
 			_repositoryMock.Setup(r => r.GetById(orderId)).ReturnsAsync(existingOrder);
-			_gameRepositoryMock.Setup(r => r.GetById(firstGameId)).ReturnsAsync(BuildGame(firstGameId, "Game 1", 100.00M, true));
-			_gameRepositoryMock.Setup(r => r.GetById(secondGameId)).ReturnsAsync(BuildGame(secondGameId, "Game 2", 50.00M, true));
+           _gameCatalogLookupServiceMock.Setup(r => r.GetByIdForProcessing(firstGameId)).ReturnsAsync(BuildGame(firstGameId, "Game 1", 100.00M, true));
+			_gameCatalogLookupServiceMock.Setup(r => r.GetByIdForProcessing(secondGameId)).ReturnsAsync(BuildGame(secondGameId, "Game 2", 50.00M, true));
 
 			var response = await _sut.Update(orderId, updateDto);
 
@@ -369,7 +368,7 @@ namespace FCG.Catalog.Tests
 			var updateDto = BuildValidOrderUpdateDto(missingGameId);
 
 			_repositoryMock.Setup(r => r.GetById(orderId)).ReturnsAsync(existingOrder);
-			_gameRepositoryMock.Setup(r => r.GetById(missingGameId)).ReturnsAsync((Game?)null);
+         _gameCatalogLookupServiceMock.Setup(r => r.GetByIdForProcessing(missingGameId)).ReturnsAsync((GameLookupDto?)null);
 
 			var response = await _sut.Update(orderId, updateDto);
 
@@ -389,7 +388,7 @@ namespace FCG.Catalog.Tests
 			var unavailableGame = BuildGame(unavailableGameId, "Unavailable game", 25.00M, false);
 
 			_repositoryMock.Setup(r => r.GetById(orderId)).ReturnsAsync(existingOrder);
-			_gameRepositoryMock.Setup(r => r.GetById(unavailableGameId)).ReturnsAsync(unavailableGame);
+         _gameCatalogLookupServiceMock.Setup(r => r.GetByIdForProcessing(unavailableGameId)).ReturnsAsync(unavailableGame);
 
 			var response = await _sut.Update(orderId, updateDto);
 
@@ -469,10 +468,9 @@ namespace FCG.Catalog.Tests
 			return OrderAggregate.Create(DateTime.UtcNow, 123, [snapshot]);
 		}
 
-		private static Game BuildGame(Guid id, string name, decimal price, bool isAvailable)
+        private static GameLookupDto BuildGame(Guid id, string name, decimal price, bool isAvailable)
 		{
-			var game = Game.Create(name, "Platform", "Publisher", "Description", price);
-			return Game.Rehydrate(id, game.Name, game.Platform, game.PublisherName, game.Description, game.Price, isAvailable, DateTime.UtcNow);
+			return new GameLookupDto(id, name, "Platform", "Publisher", "Description", price, isAvailable);
    }
 	}
 }

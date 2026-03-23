@@ -1,5 +1,6 @@
 using FCG.Catalog.Domain.Models.Cart;
 using FCG.Catalog.Domain.Enums;
+using FCG.Catalog.Domain.Repository;
 using FCG.Catalog.Infra.Context;
 using Microsoft.EntityFrameworkCore;
 

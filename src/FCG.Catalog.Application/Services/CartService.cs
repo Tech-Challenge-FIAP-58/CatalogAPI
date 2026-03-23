@@ -2,18 +2,18 @@ using System.ComponentModel.DataAnnotations;
 using FCG.Catalog.Application.Interfaces;
 using FCG.Catalog.Domain.Inputs;
 using FCG.Catalog.Domain.Models.Cart;
+using FCG.Catalog.Domain.Repository;
 using FCG.Catalog.Domain.Validation;
 using FCG.Catalog.Domain.Web;
-using FCG.Catalog.Infra.Repository;
 using AutoMapper;
 
 namespace FCG.Catalog.Application.Services
 {
     public class CartService(
         ICartRepository repository,
-        IGameRepository gameRepository,
-        IOrderService orderService,
-        IMapper mapper) : BaseService, ICartService
+        IGameCatalogLookupService gameCatalogLookupService,
+        IOrderCheckoutService orderCheckoutService,
+        IMapper mapper) : BaseService, ICartReadService, ICartManagementService
     {
         public async Task<IApiResponse<CartResponseDto?>> GetByUserId(int userId)
         {
@@ -40,7 +40,7 @@ namespace FCG.Catalog.Application.Services
                 return BadRequest<CartResponseDto?>($"Invalid cart data: {ex.Message}");
             }
 
-            var game = await gameRepository.GetById(dto.GameId);
+            var game = await gameCatalogLookupService.GetByIdForProcessing(dto.GameId);
 
             if (game is null)
             {
@@ -157,7 +157,7 @@ namespace FCG.Catalog.Application.Services
 
             foreach (var cartItem in cart.Items)
             {
-                var game = await gameRepository.GetById(cartItem.GameId);
+                var game = await gameCatalogLookupService.GetByIdForProcessing(cartItem.GameId);
 
                 if (game is null)
                 {
@@ -194,7 +194,7 @@ namespace FCG.Catalog.Application.Services
                     .ToList()
             };
 
-            var createOrderResponse = await orderService.Create(createOrderDto, dto);
+            var createOrderResponse = await orderCheckoutService.Create(createOrderDto, dto);
 
             if (!createOrderResponse.IsSuccess || createOrderResponse.ResultValue is null)
             {

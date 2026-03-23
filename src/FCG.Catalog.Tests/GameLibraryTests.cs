@@ -3,7 +3,7 @@ using FCG.Catalog.Application.Services;
 using FCG.Catalog.Domain.Events;
 using FCG.Catalog.Domain.Inputs;
 using FCG.Catalog.Domain.Models.Library;
-using FCG.Catalog.Infra.Repository;
+using FCG.Catalog.Domain.Repository;
 using Moq;
 using System.Net;
 

@@ -1,6 +1,6 @@
-﻿using FCG.Catalog.Domain.Common;
+using FCG.Catalog.Domain.Common;
 
-namespace FCG.Catalog.Infra.Repository
+namespace FCG.Catalog.Domain.Repository
 {
     public interface IRepository<TEntity> where TEntity : EntityBase, IAggregateRoot
     {

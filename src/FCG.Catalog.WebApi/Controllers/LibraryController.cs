@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace FCG.Catalog.WebApi.Controllers
 {
-    public class LibraryController(IGameLibraryService service, ILogger<LibraryController> logger) : StandardController
+    public class LibraryController(IGameLibraryReadService service, ILogger<LibraryController> logger) : StandardController
     {
         [Authorize]
         [HttpGet("GetLibraryGamesByUserId/{userId:int}")]

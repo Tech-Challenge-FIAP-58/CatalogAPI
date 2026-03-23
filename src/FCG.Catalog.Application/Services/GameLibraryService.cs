@@ -3,12 +3,12 @@ using FCG.Catalog.Application.Interfaces;
 using FCG.Catalog.Domain.Events;
 using FCG.Catalog.Domain.Inputs;
 using FCG.Catalog.Domain.Models.Library;
+using FCG.Catalog.Domain.Repository;
 using FCG.Catalog.Domain.Web;
-using FCG.Catalog.Infra.Repository;
 
 namespace FCG.Catalog.Application.Services
 {
-    public class GameLibraryService(IGameLibraryRepository repository, IMapper mapper) : BaseService, IGameLibraryService
+    public class GameLibraryService(IGameLibraryRepository repository, IMapper mapper) : BaseService, IGameLibraryReadService, IGameLibraryOwnershipService
     {
         public async Task<IApiResponse<bool>> AddGames(int userId, IReadOnlyCollection<OrderItemSnapshot> games)
         {

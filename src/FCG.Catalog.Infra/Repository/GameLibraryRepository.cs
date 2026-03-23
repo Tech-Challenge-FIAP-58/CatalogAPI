@@ -1,4 +1,5 @@
 using FCG.Catalog.Domain.Models.Library;
+using FCG.Catalog.Domain.Repository;
 using FCG.Catalog.Infra.Context;
 using Microsoft.EntityFrameworkCore;
 

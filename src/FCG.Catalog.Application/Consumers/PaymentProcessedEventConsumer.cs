@@ -7,14 +7,14 @@ namespace FCG.Catalog.Application.Consumers
 {
     public class PaymentProcessedEventConsumer(
         ILogger<PaymentProcessedEventConsumer> logger,
-        IOrderService orderService,
-        IGameLibraryService gameLibraryService) : IConsumer<PaymentProcessedEvent>
+        IOrderPaymentProcessingService orderPaymentProcessingService,
+        IGameLibraryOwnershipService gameLibraryOwnershipService) : IConsumer<PaymentProcessedEvent>
     {
         public async Task Consume(ConsumeContext<PaymentProcessedEvent> context)
         {
             logger.LogInformation("Payment processed for order #{OrderId}", context.Message.OrderId);
 
-            var updateResponse = await orderService.UpdatePaymentStatus(context.Message.OrderId, context.Message.Status);
+            var updateResponse = await orderPaymentProcessingService.UpdatePaymentStatus(context.Message.OrderId, context.Message.Status);
 
             if (!updateResponse.IsSuccess)
             {
@@ -26,7 +26,7 @@ namespace FCG.Catalog.Application.Consumers
             {
                 logger.LogInformation("✅ Payment approved");
 
-                var orderResponse = await orderService.GetById(context.Message.OrderId);
+                var orderResponse = await orderPaymentProcessingService.GetById(context.Message.OrderId);
 
                 if (!orderResponse.IsSuccess || orderResponse.ResultValue is null)
                 {
@@ -34,7 +34,7 @@ namespace FCG.Catalog.Application.Consumers
                     return;
                 }
 
-                var libraryResponse = await gameLibraryService.AddGames(orderResponse.ResultValue.UserId, orderResponse.ResultValue.Items);
+                var libraryResponse = await gameLibraryOwnershipService.AddGames(orderResponse.ResultValue.UserId, orderResponse.ResultValue.Items);
 
                 if (!libraryResponse.IsSuccess)
                 {

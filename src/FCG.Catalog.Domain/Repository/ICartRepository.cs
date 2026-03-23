@@ -1,6 +1,6 @@
 using FCG.Catalog.Domain.Models.Cart;
 
-namespace FCG.Catalog.Infra.Repository
+namespace FCG.Catalog.Domain.Repository
 {
     public interface ICartRepository : IRepository<Cart>
     {

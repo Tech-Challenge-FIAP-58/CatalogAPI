@@ -5,7 +5,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace FCG.Catalog.WebApi.Controllers
 {
-    public class OrderController(IOrderService service,
+    public class OrderController(IOrderManagementService managementService,
+        IOrderReadService readService,
         ILogger<OrderController> logger) : StandardController
     {
 		[Authorize(Roles = "Admin")]
@@ -13,7 +14,7 @@ namespace FCG.Catalog.WebApi.Controllers
         public Task<IActionResult> Create([FromBody] OrderRegisterDto dto)
         {
            logger.LogInformation("POST - Create order");
-			return TryMethodAsync(() => service.Create(dto), logger);
+           return TryMethodAsync(() => managementService.Create(dto), logger);
 		}
 
         [Authorize]
@@ -21,7 +22,7 @@ namespace FCG.Catalog.WebApi.Controllers
         public Task<IActionResult> GetById(Guid id)
         {
             logger.LogInformation("GET - Get order by ID: {Id}", id);
-            return TryMethodAsync(() => service.GetById(id), logger);
+            return TryMethodAsync(() => readService.GetById(id), logger);
         }
 
         [Authorize]
@@ -29,7 +30,7 @@ namespace FCG.Catalog.WebApi.Controllers
         public Task<IActionResult> GetByUserId(int userId)
         {
             logger.LogInformation("GET - Get orders by user ID: {UserId}", userId);
-            return TryMethodAsync(() => service.GetByUserId(userId), logger);
+            return TryMethodAsync(() => readService.GetByUserId(userId), logger);
         }
 
         [Authorize(Roles = "Admin")]
@@ -37,7 +38,7 @@ namespace FCG.Catalog.WebApi.Controllers
         public Task<IActionResult> Update(Guid id, [FromBody] OrderUpdateDto update)
         {
             logger.LogInformation("PUT - Update order with ID: {Id}", id);
-            return TryMethodAsync(() => service.Update(id, update), logger);
+            return TryMethodAsync(() => managementService.Update(id, update), logger);
         }
     }
 }

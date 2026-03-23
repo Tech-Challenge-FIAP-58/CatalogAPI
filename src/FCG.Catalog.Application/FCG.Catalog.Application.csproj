@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="15.1.0" />
     <PackageReference Include="MassTransit" Version="8.5.7" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="8.0.0" />
@@ -15,7 +16,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\FCG.Catalog.Domain\FCG.Catalog.Domain.csproj" />
-    <ProjectReference Include="..\FCG.Catalog.Infra\FCG.Catalog.Infra.csproj" />
     <ProjectReference Include="..\FCG.Core\FCG.Core.csproj" />
   </ItemGroup>
 

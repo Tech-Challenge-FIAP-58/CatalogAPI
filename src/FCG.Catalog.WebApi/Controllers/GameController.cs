@@ -5,14 +5,14 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace FCG.Catalog.WebApi.Controllers
 {
-    public class GameController(IGameService service, ILogger<GameController> logger) : StandardController
+    public class GameController(IGameReadService readService, IGameManagementService managementService, ILogger<GameController> logger) : StandardController
     {
         [Authorize(Roles = "Admin")]
         [HttpPost("RegisterGame")]
         public Task<IActionResult> Create([FromBody] GameRegisterDto register)
         {
             logger.LogInformation("POST - Create game");
-            return TryMethodAsync(() => service.Create(register), logger);
+            return TryMethodAsync(() => managementService.Create(register), logger);
         }
 
         [Authorize]
@@ -20,7 +20,7 @@ namespace FCG.Catalog.WebApi.Controllers
         public Task<IActionResult> Get()
         {
             logger.LogInformation("GET - List games");
-            return TryMethodAsync(() => service.GetAll(), logger);
+            return TryMethodAsync(() => readService.GetAll(), logger);
         }
 
         [Authorize]
@@ -28,7 +28,7 @@ namespace FCG.Catalog.WebApi.Controllers
         public Task<IActionResult> GetById(Guid id)
         {
             logger.LogInformation("GET - Get game by ID: {Id}", id);
-            return TryMethodAsync(() => service.GetById(id), logger);
+            return TryMethodAsync(() => readService.GetById(id), logger);
         }
 
         [Authorize(Roles = "Admin")]
@@ -36,7 +36,7 @@ namespace FCG.Catalog.WebApi.Controllers
         public Task<IActionResult> Update(Guid id, [FromBody] GameUpdateDto update)
         {
             logger.LogInformation("PUT - Update game with ID: {Id}", id);
-            return TryMethodAsync(() => service.Update(id, update), logger);
+            return TryMethodAsync(() => managementService.Update(id, update), logger);
         }
 
         [Authorize(Roles = "Admin")]
@@ -44,7 +44,7 @@ namespace FCG.Catalog.WebApi.Controllers
         public Task<IActionResult> Delete(Guid id)
         {
             logger.LogInformation("DELETE - Delete game with ID: {Id}", id);
-            return TryMethodAsync(() => service.Remove(id), logger);
+            return TryMethodAsync(() => managementService.Remove(id), logger);
         }
     }
 }

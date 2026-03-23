@@ -1,6 +1,6 @@
 using FCG.Catalog.Domain.Models.Library;
 
-namespace FCG.Catalog.Infra.Repository
+namespace FCG.Catalog.Domain.Repository
 {
     public interface IGameLibraryRepository : IRepository<GameLibrary>
     {

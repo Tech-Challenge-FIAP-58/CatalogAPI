@@ -5,14 +5,14 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace FCG.Catalog.WebApi.Controllers
 {
-    public class CartController(ICartService service, ILogger<CartController> logger) : StandardController
+    public class CartController(ICartReadService readService, ICartManagementService managementService, ILogger<CartController> logger) : StandardController
     {
         [Authorize]
         [HttpGet("GetCartByUserId/{userId:int}")]
         public Task<IActionResult> GetByUserId(int userId)
         {
             logger.LogInformation("GET - Get active cart by user: {UserId}", userId);
-            return TryMethodAsync(() => service.GetByUserId(userId), logger);
+            return TryMethodAsync(() => readService.GetByUserId(userId), logger);
         }
 
         [Authorize]
@@ -20,7 +20,7 @@ namespace FCG.Catalog.WebApi.Controllers
         public Task<IActionResult> AddItem([FromBody] CartAddItemDto dto)
         {
             logger.LogInformation("POST - Add item to cart for user: {UserId}", dto.UserId);
-            return TryMethodAsync(() => service.AddItem(dto), logger);
+            return TryMethodAsync(() => managementService.AddItem(dto), logger);
         }
 
         [Authorize]
@@ -28,7 +28,7 @@ namespace FCG.Catalog.WebApi.Controllers
         public Task<IActionResult> RemoveItem([FromBody] CartRemoveItemDto dto)
         {
             logger.LogInformation("DELETE - Remove item from cart for user: {UserId}", dto.UserId);
-            return TryMethodAsync(() => service.RemoveItem(dto), logger);
+            return TryMethodAsync(() => managementService.RemoveItem(dto), logger);
         }
 
         [Authorize]
@@ -36,7 +36,7 @@ namespace FCG.Catalog.WebApi.Controllers
         public Task<IActionResult> Clear(int userId)
         {
             logger.LogInformation("DELETE - Clear cart for user: {UserId}", userId);
-            return TryMethodAsync(() => service.Clear(userId), logger);
+            return TryMethodAsync(() => managementService.Clear(userId), logger);
         }
 
         [Authorize]
@@ -44,7 +44,7 @@ namespace FCG.Catalog.WebApi.Controllers
         public Task<IActionResult> Checkout([FromBody] CheckoutCartDto dto)
         {
             logger.LogInformation("POST - Checkout cart for user: {UserId}", dto.ClientId);
-            return TryMethodAsync(() => service.Checkout(dto), logger);
+            return TryMethodAsync(() => managementService.Checkout(dto), logger);
         }
     }
 }

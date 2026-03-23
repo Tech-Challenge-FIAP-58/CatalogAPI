@@ -1,6 +1,6 @@
-﻿using OrderAggregate = FCG.Catalog.Domain.Models.Order.Order;
+using OrderAggregate = FCG.Catalog.Domain.Models.Order.Order;
 
-namespace FCG.Catalog.Infra.Repository
+namespace FCG.Catalog.Domain.Repository
 {
     public interface IOrderRepository : IRepository<OrderAggregate>
     {

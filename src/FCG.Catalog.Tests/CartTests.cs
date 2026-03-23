@@ -4,9 +4,8 @@ using FCG.Catalog.Application.Services;
 using FCG.Catalog.Domain.Enums;
 using FCG.Catalog.Domain.Inputs;
 using FCG.Catalog.Domain.Models.Cart;
-using FCG.Catalog.Domain.Models.Catalog;
+using FCG.Catalog.Domain.Repository;
 using FCG.Catalog.Domain.Web;
-using FCG.Catalog.Infra.Repository;
 using Moq;
 using System.Net;
 
@@ -15,23 +14,23 @@ namespace FCG.Catalog.Tests;
 public class CartTests
 {
     private readonly Mock<ICartRepository> _repositoryMock;
-    private readonly Mock<IGameRepository> _gameRepositoryMock;
-    private readonly Mock<IOrderService> _orderServiceMock;
+    private readonly Mock<IGameCatalogLookupService> _gameCatalogLookupServiceMock;
+    private readonly Mock<IOrderCheckoutService> _orderCheckoutServiceMock;
     private readonly Mock<IMapper> _mapperMock;
     private readonly CartService _sut;
 
     public CartTests()
     {
         _repositoryMock = new Mock<ICartRepository>();
-        _gameRepositoryMock = new Mock<IGameRepository>();
-        _orderServiceMock = new Mock<IOrderService>();
+        _gameCatalogLookupServiceMock = new Mock<IGameCatalogLookupService>();
+        _orderCheckoutServiceMock = new Mock<IOrderCheckoutService>();
         _mapperMock = new Mock<IMapper>();
 
         _mapperMock
             .Setup(m => m.Map<CartResponseDto>(It.IsAny<Cart>()))
             .Returns((Cart cart) => ToResponse(cart));
 
-        _sut = new CartService(_repositoryMock.Object, _gameRepositoryMock.Object, _orderServiceMock.Object, _mapperMock.Object);
+        _sut = new CartService(_repositoryMock.Object, _gameCatalogLookupServiceMock.Object, _orderCheckoutServiceMock.Object, _mapperMock.Object);
     }
 
     [Fact]
@@ -74,7 +73,7 @@ public class CartTests
     public async Task AddItem_ShouldReturnNotFound_WhenGameDoesNotExist()
     {
         var dto = new CartAddItemDto { UserId = 1, GameId = Guid.NewGuid() };
-        _gameRepositoryMock.Setup(r => r.GetById(dto.GameId)).ReturnsAsync((Game?)null);
+        _gameCatalogLookupServiceMock.Setup(r => r.GetByIdForProcessing(dto.GameId)).ReturnsAsync((GameLookupDto?)null);
 
         var response = await _sut.AddItem(dto);
 
@@ -90,7 +89,7 @@ public class CartTests
     {
         var dto = new CartAddItemDto { UserId = 1, GameId = Guid.NewGuid() };
         var game = BuildGame(dto.GameId, "GTA", 200, false);
-        _gameRepositoryMock.Setup(r => r.GetById(dto.GameId)).ReturnsAsync(game);
+        _gameCatalogLookupServiceMock.Setup(r => r.GetByIdForProcessing(dto.GameId)).ReturnsAsync(game);
 
         var response = await _sut.AddItem(dto);
 
@@ -106,7 +105,7 @@ public class CartTests
         var dto = new CartAddItemDto { UserId = 1, GameId = Guid.NewGuid() };
         var game = BuildGame(dto.GameId, "GTA", 200, true);
 
-        _gameRepositoryMock.Setup(r => r.GetById(dto.GameId)).ReturnsAsync(game);
+        _gameCatalogLookupServiceMock.Setup(r => r.GetByIdForProcessing(dto.GameId)).ReturnsAsync(game);
         _repositoryMock.Setup(r => r.GetByUserId(dto.UserId)).ReturnsAsync((Cart?)null);
 
         var response = await _sut.AddItem(dto);
@@ -128,7 +127,7 @@ public class CartTests
         existingCart.AddItem(dto.GameId, "GTA", "PC", "Rockstar", "Desc", 200);
         var game = BuildGame(dto.GameId, "GTA", 200, true);
 
-        _gameRepositoryMock.Setup(r => r.GetById(dto.GameId)).ReturnsAsync(game);
+        _gameCatalogLookupServiceMock.Setup(r => r.GetByIdForProcessing(dto.GameId)).ReturnsAsync(game);
         _repositoryMock.Setup(r => r.GetByUserId(dto.UserId)).ReturnsAsync(existingCart);
 
         var response = await _sut.AddItem(dto);
@@ -147,7 +146,7 @@ public class CartTests
         existingCart.AddItem(Guid.NewGuid(), "RDR2", "PC", "Rockstar", "Desc", 150);
         var game = BuildGame(dto.GameId, "GTA", 200, true);
 
-        _gameRepositoryMock.Setup(r => r.GetById(dto.GameId)).ReturnsAsync(game);
+        _gameCatalogLookupServiceMock.Setup(r => r.GetByIdForProcessing(dto.GameId)).ReturnsAsync(game);
         _repositoryMock.Setup(r => r.GetByUserId(dto.UserId)).ReturnsAsync(existingCart);
 
         var response = await _sut.AddItem(dto);
@@ -188,7 +187,7 @@ public class CartTests
         Assert.False(response.IsSuccess);
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         Assert.Equal("Cart is empty.", response.Message);
-        _orderServiceMock.Verify(s => s.Create(It.IsAny<OrderRegisterDto>(), It.IsAny<CheckoutCartDto>()), Times.Never);
+        _orderCheckoutServiceMock.Verify(s => s.Create(It.IsAny<OrderRegisterDto>(), It.IsAny<CheckoutCartDto>()), Times.Never);
     }
 
     [Fact]
@@ -201,14 +200,14 @@ public class CartTests
         var checkoutDto = BuildValidCheckoutDto(userId, 100);
 
         _repositoryMock.Setup(r => r.GetByUserId(userId)).ReturnsAsync(cart);
-        _gameRepositoryMock.Setup(r => r.GetById(gameId)).ReturnsAsync((Game?)null);
+        _gameCatalogLookupServiceMock.Setup(r => r.GetByIdForProcessing(gameId)).ReturnsAsync((GameLookupDto?)null);
 
         var response = await _sut.Checkout(checkoutDto);
 
         Assert.False(response.IsSuccess);
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
         Assert.Equal($"Game not found: {gameId}", response.Message);
-        _orderServiceMock.Verify(s => s.Create(It.IsAny<OrderRegisterDto>(), It.IsAny<CheckoutCartDto>()), Times.Never);
+        _orderCheckoutServiceMock.Verify(s => s.Create(It.IsAny<OrderRegisterDto>(), It.IsAny<CheckoutCartDto>()), Times.Never);
     }
 
     [Fact]
@@ -222,14 +221,14 @@ public class CartTests
         var unavailableGame = BuildGame(gameId, "GTA", 100, false);
 
         _repositoryMock.Setup(r => r.GetByUserId(userId)).ReturnsAsync(cart);
-        _gameRepositoryMock.Setup(r => r.GetById(gameId)).ReturnsAsync(unavailableGame);
+        _gameCatalogLookupServiceMock.Setup(r => r.GetByIdForProcessing(gameId)).ReturnsAsync(unavailableGame);
 
         var response = await _sut.Checkout(checkoutDto);
 
         Assert.False(response.IsSuccess);
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         Assert.Equal("Game is not available: GTA", response.Message);
-        _orderServiceMock.Verify(s => s.Create(It.IsAny<OrderRegisterDto>(), It.IsAny<CheckoutCartDto>()), Times.Never);
+        _orderCheckoutServiceMock.Verify(s => s.Create(It.IsAny<OrderRegisterDto>(), It.IsAny<CheckoutCartDto>()), Times.Never);
     }
 
     [Fact]
@@ -349,14 +348,14 @@ public class CartTests
         var changedPriceGame = BuildGame(gameId, "GTA", 150, true);
 
         _repositoryMock.Setup(r => r.GetByUserId(userId)).ReturnsAsync(cart);
-        _gameRepositoryMock.Setup(r => r.GetById(gameId)).ReturnsAsync(changedPriceGame);
+        _gameCatalogLookupServiceMock.Setup(r => r.GetByIdForProcessing(gameId)).ReturnsAsync(changedPriceGame);
 
         var response = await _sut.Checkout(checkoutDto);
 
         Assert.False(response.IsSuccess);
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         Assert.Equal("Cart total does not match recalculated total.", response.Message);
-        _orderServiceMock.Verify(s => s.Create(It.IsAny<OrderRegisterDto>(), It.IsAny<CheckoutCartDto>()), Times.Never);
+        _orderCheckoutServiceMock.Verify(s => s.Create(It.IsAny<OrderRegisterDto>(), It.IsAny<CheckoutCartDto>()), Times.Never);
     }
 
     [Fact]
@@ -370,7 +369,7 @@ public class CartTests
         var game = BuildGame(gameId, "GTA", 100, true);
 
         _repositoryMock.Setup(r => r.GetByUserId(userId)).ReturnsAsync(cart);
-        _gameRepositoryMock.Setup(r => r.GetById(gameId)).ReturnsAsync(game);
+        _gameCatalogLookupServiceMock.Setup(r => r.GetByIdForProcessing(gameId)).ReturnsAsync(game);
 
         var response = await _sut.Checkout(checkoutDto);
 
@@ -397,8 +396,8 @@ public class CartTests
         };
 
         _repositoryMock.Setup(r => r.GetByUserId(userId)).ReturnsAsync(cart);
-        _gameRepositoryMock.Setup(r => r.GetById(gameId)).ReturnsAsync(game);
-        _orderServiceMock.Setup(s => s.Create(It.IsAny<OrderRegisterDto>(), checkoutDto)).ReturnsAsync(orderFailure);
+        _gameCatalogLookupServiceMock.Setup(r => r.GetByIdForProcessing(gameId)).ReturnsAsync(game);
+        _orderCheckoutServiceMock.Setup(s => s.Create(It.IsAny<OrderRegisterDto>(), checkoutDto)).ReturnsAsync(orderFailure);
 
         var response = await _sut.Checkout(checkoutDto);
 
@@ -427,8 +426,8 @@ public class CartTests
         };
 
         _repositoryMock.Setup(r => r.GetByUserId(userId)).ReturnsAsync(cart);
-        _gameRepositoryMock.Setup(r => r.GetById(gameId)).ReturnsAsync(game);
-        _orderServiceMock.Setup(s => s.Create(It.IsAny<OrderRegisterDto>(), checkoutDto)).ReturnsAsync(orderResponseWithNullId);
+        _gameCatalogLookupServiceMock.Setup(r => r.GetByIdForProcessing(gameId)).ReturnsAsync(game);
+        _orderCheckoutServiceMock.Setup(s => s.Create(It.IsAny<OrderRegisterDto>(), checkoutDto)).ReturnsAsync(orderResponseWithNullId);
 
         var response = await _sut.Checkout(checkoutDto);
 
@@ -459,8 +458,8 @@ public class CartTests
         };
 
         _repositoryMock.Setup(r => r.GetByUserId(userId)).ReturnsAsync(cart);
-        _gameRepositoryMock.Setup(r => r.GetById(gameId)).ReturnsAsync(game);
-        _orderServiceMock
+        _gameCatalogLookupServiceMock.Setup(r => r.GetByIdForProcessing(gameId)).ReturnsAsync(game);
+        _orderCheckoutServiceMock
             .Setup(s => s.Create(
                 It.Is<OrderRegisterDto>(o =>
                     o.UserId == userId &&
@@ -492,10 +491,9 @@ public class CartTests
             Cvv = "123"
         };
 
-    private static Game BuildGame(Guid id, string name, decimal price, bool isAvailable)
+    private static GameLookupDto BuildGame(Guid id, string name, decimal price, bool isAvailable)
     {
-        var game = Game.Create(name, "PC", "Rockstar", "Desc", price);
-        return Game.Rehydrate(id, game.Name, game.Platform, game.PublisherName, game.Description, game.Price, isAvailable, DateTime.UtcNow);
+        return new GameLookupDto(id, name, "PC", "Rockstar", "Desc", price, isAvailable);
     }
 
     private static CartResponseDto ToResponse(Cart cart)

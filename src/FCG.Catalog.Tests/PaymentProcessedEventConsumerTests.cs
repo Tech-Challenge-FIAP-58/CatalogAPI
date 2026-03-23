@@ -13,18 +13,18 @@ namespace FCG.Catalog.Tests;
 
 public class PaymentProcessedEventConsumerTests
 {
-    private readonly Mock<IOrderService> _orderServiceMock;
-    private readonly Mock<IGameLibraryService> _gameLibraryServiceMock;
+    private readonly Mock<IOrderPaymentProcessingService> _orderPaymentProcessingServiceMock;
+    private readonly Mock<IGameLibraryOwnershipService> _gameLibraryOwnershipServiceMock;
     private readonly Mock<ILogger<PaymentProcessedEventConsumer>> _loggerMock;
     private readonly PaymentProcessedEventConsumer _sut;
 
     public PaymentProcessedEventConsumerTests()
     {
-        _orderServiceMock = new Mock<IOrderService>();
-        _gameLibraryServiceMock = new Mock<IGameLibraryService>();
+        _orderPaymentProcessingServiceMock = new Mock<IOrderPaymentProcessingService>();
+        _gameLibraryOwnershipServiceMock = new Mock<IGameLibraryOwnershipService>();
         _loggerMock = new Mock<ILogger<PaymentProcessedEventConsumer>>();
 
-        _sut = new PaymentProcessedEventConsumer(_loggerMock.Object, _orderServiceMock.Object, _gameLibraryServiceMock.Object);
+        _sut = new PaymentProcessedEventConsumer(_loggerMock.Object, _orderPaymentProcessingServiceMock.Object, _gameLibraryOwnershipServiceMock.Object);
     }
 
     [Fact]
@@ -39,12 +39,12 @@ public class PaymentProcessedEventConsumerTests
             Message = "Order not found."
         };
 
-        _orderServiceMock.Setup(s => s.UpdatePaymentStatus(evt.OrderId, evt.Status)).ReturnsAsync(updateFailure);
+        _orderPaymentProcessingServiceMock.Setup(s => s.UpdatePaymentStatus(evt.OrderId, evt.Status)).ReturnsAsync(updateFailure);
 
         await _sut.Consume(context.Object);
 
-        _orderServiceMock.Verify(s => s.GetById(It.IsAny<Guid>()), Times.Never);
-        _gameLibraryServiceMock.Verify(s => s.AddGames(It.IsAny<int>(), It.IsAny<IReadOnlyCollection<OrderItemSnapshot>>()), Times.Never);
+        _orderPaymentProcessingServiceMock.Verify(s => s.GetById(It.IsAny<Guid>()), Times.Never);
+        _gameLibraryOwnershipServiceMock.Verify(s => s.AddGames(It.IsAny<int>(), It.IsAny<IReadOnlyCollection<OrderItemSnapshot>>()), Times.Never);
     }
 
     [Fact]
@@ -54,12 +54,12 @@ public class PaymentProcessedEventConsumerTests
         var context = BuildContext(evt);
         var updateSuccess = new TestApiResponse<bool> { IsSuccess = true, StatusCode = HttpStatusCode.NoContent };
 
-        _orderServiceMock.Setup(s => s.UpdatePaymentStatus(evt.OrderId, evt.Status)).ReturnsAsync(updateSuccess);
+        _orderPaymentProcessingServiceMock.Setup(s => s.UpdatePaymentStatus(evt.OrderId, evt.Status)).ReturnsAsync(updateSuccess);
 
         await _sut.Consume(context.Object);
 
-        _orderServiceMock.Verify(s => s.GetById(It.IsAny<Guid>()), Times.Never);
-        _gameLibraryServiceMock.Verify(s => s.AddGames(It.IsAny<int>(), It.IsAny<IReadOnlyCollection<OrderItemSnapshot>>()), Times.Never);
+        _orderPaymentProcessingServiceMock.Verify(s => s.GetById(It.IsAny<Guid>()), Times.Never);
+        _gameLibraryOwnershipServiceMock.Verify(s => s.AddGames(It.IsAny<int>(), It.IsAny<IReadOnlyCollection<OrderItemSnapshot>>()), Times.Never);
     }
 
     [Fact]
@@ -76,12 +76,12 @@ public class PaymentProcessedEventConsumerTests
             ResultValue = null
         };
 
-        _orderServiceMock.Setup(s => s.UpdatePaymentStatus(evt.OrderId, evt.Status)).ReturnsAsync(updateSuccess);
-        _orderServiceMock.Setup(s => s.GetById(evt.OrderId)).ReturnsAsync(orderFailure);
+        _orderPaymentProcessingServiceMock.Setup(s => s.UpdatePaymentStatus(evt.OrderId, evt.Status)).ReturnsAsync(updateSuccess);
+        _orderPaymentProcessingServiceMock.Setup(s => s.GetById(evt.OrderId)).ReturnsAsync(orderFailure);
 
         await _sut.Consume(context.Object);
 
-        _gameLibraryServiceMock.Verify(s => s.AddGames(It.IsAny<int>(), It.IsAny<IReadOnlyCollection<OrderItemSnapshot>>()), Times.Never);
+        _gameLibraryOwnershipServiceMock.Verify(s => s.AddGames(It.IsAny<int>(), It.IsAny<IReadOnlyCollection<OrderItemSnapshot>>()), Times.Never);
     }
 
     [Fact]
@@ -99,13 +99,13 @@ public class PaymentProcessedEventConsumerTests
         };
         var librarySuccess = new TestApiResponse<bool> { IsSuccess = true, StatusCode = HttpStatusCode.NoContent };
 
-        _orderServiceMock.Setup(s => s.UpdatePaymentStatus(evt.OrderId, evt.Status)).ReturnsAsync(updateSuccess);
-        _orderServiceMock.Setup(s => s.GetById(evt.OrderId)).ReturnsAsync(orderSuccess);
-        _gameLibraryServiceMock.Setup(s => s.AddGames(orderResponse.UserId, orderResponse.Items)).ReturnsAsync(librarySuccess);
+        _orderPaymentProcessingServiceMock.Setup(s => s.UpdatePaymentStatus(evt.OrderId, evt.Status)).ReturnsAsync(updateSuccess);
+        _orderPaymentProcessingServiceMock.Setup(s => s.GetById(evt.OrderId)).ReturnsAsync(orderSuccess);
+        _gameLibraryOwnershipServiceMock.Setup(s => s.AddGames(orderResponse.UserId, orderResponse.Items)).ReturnsAsync(librarySuccess);
 
         await _sut.Consume(context.Object);
 
-        _gameLibraryServiceMock.Verify(s => s.AddGames(orderResponse.UserId, orderResponse.Items), Times.Once);
+        _gameLibraryOwnershipServiceMock.Verify(s => s.AddGames(orderResponse.UserId, orderResponse.Items), Times.Once);
     }
 
     [Fact]
@@ -128,13 +128,13 @@ public class PaymentProcessedEventConsumerTests
             Message = "Library update failed."
         };
 
-        _orderServiceMock.Setup(s => s.UpdatePaymentStatus(evt.OrderId, evt.Status)).ReturnsAsync(updateSuccess);
-        _orderServiceMock.Setup(s => s.GetById(evt.OrderId)).ReturnsAsync(orderSuccess);
-        _gameLibraryServiceMock.Setup(s => s.AddGames(orderResponse.UserId, orderResponse.Items)).ReturnsAsync(libraryFailure);
+        _orderPaymentProcessingServiceMock.Setup(s => s.UpdatePaymentStatus(evt.OrderId, evt.Status)).ReturnsAsync(updateSuccess);
+        _orderPaymentProcessingServiceMock.Setup(s => s.GetById(evt.OrderId)).ReturnsAsync(orderSuccess);
+        _gameLibraryOwnershipServiceMock.Setup(s => s.AddGames(orderResponse.UserId, orderResponse.Items)).ReturnsAsync(libraryFailure);
 
         await _sut.Consume(context.Object);
 
-        _gameLibraryServiceMock.Verify(s => s.AddGames(orderResponse.UserId, orderResponse.Items), Times.Once);
+        _gameLibraryOwnershipServiceMock.Verify(s => s.AddGames(orderResponse.UserId, orderResponse.Items), Times.Once);
     }
 
     private static Mock<ConsumeContext<PaymentProcessedEvent>> BuildContext(PaymentProcessedEvent evt)

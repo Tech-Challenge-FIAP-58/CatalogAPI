@@ -1,8 +1,8 @@
 using AutoMapper;
 using FCG.Catalog.Application.Services;
 using FCG.Catalog.Domain.Inputs;
+using FCG.Catalog.Domain.Repository;
 using FCG.Catalog.Infra.Mapping;
-using FCG.Catalog.Infra.Repository;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using System.Net;

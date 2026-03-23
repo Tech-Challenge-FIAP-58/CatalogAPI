@@ -1,7 +1,6 @@
-﻿using FCG.Catalog.Domain.Inputs;
 using FCG.Catalog.Domain.Models.Catalog;
 
-namespace FCG.Catalog.Infra.Repository
+namespace FCG.Catalog.Domain.Repository
 {
     public interface IGameRepository : IRepository<Game>
     {
@@ -11,6 +10,5 @@ namespace FCG.Catalog.Infra.Repository
         Task<Game?> GetByName(string name);
         void Update(Game game);
         void Remove(Game game);
-
     }
 }
