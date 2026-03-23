@@ -6,14 +6,15 @@ using FCG.Catalog.Infra.Context;
 using FCG.Catalog.Infra.Repository;
 using FCG.Catalog.WebApi.Settings;
 using FCG.Core;
+using FCG.Core.Usuario;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using OpenTelemetry.Metrics;
-using OpenTelemetry.Trace;
 using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 using Serilog;
 using Serilog.Sinks.Grafana.Loki;
 using System.Reflection;
@@ -39,6 +40,8 @@ builder.Services.AddOpenTelemetry()
         .AddAspNetCoreInstrumentation()
         .AddHttpClientInstrumentation()
         .AddPrometheusExporter());
+
+builder.Services.AddScoped<IAspNetUser, AspNetUser>();
 
 var configSection = builder.Configuration.GetSection("Jwt");
 builder.Services.Configure<JwtConfigurations>(configSection);
