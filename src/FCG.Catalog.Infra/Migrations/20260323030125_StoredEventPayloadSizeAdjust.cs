@@ -5,7 +5,7 @@
 namespace FCG.Catalog.Infra.Migrations
 {
     /// <inheritdoc />
-    public partial class StoredEventPayloadSizeAdjust : Migration
+    public partial class StoredEventPayloadSizeAdjustFinal : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -20,6 +20,14 @@ namespace FCG.Catalog.Infra.Migrations
 
             migrationBuilder.AlterColumn<string>(
                 name: "AggregateType",
+                table: "StoredEvents",
+                type: "varchar(MAX)",
+                nullable: false,
+                oldClrType: typeof(string),
+                oldType: "varchar(100)");
+
+            migrationBuilder.AlterColumn<string>(
+                name: "Payload",
                 table: "StoredEvents",
                 type: "varchar(MAX)",
                 nullable: false,
