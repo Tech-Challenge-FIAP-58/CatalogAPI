@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FCG.Catalog.Infra.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260323030125_StoredEventPayloadSizeAdjust")]
+    [Migration("20260323030125_StoredEventPayloadSizeAdjustFinal")]
     partial class StoredEventPayloadSizeAdjust
     {
         /// <inheritdoc />
