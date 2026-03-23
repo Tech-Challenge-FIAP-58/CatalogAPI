@@ -44,7 +44,7 @@ namespace FCG.Catalog.Infra.Migrations
 
                     b.Property<string>("Payload")
                         .IsRequired()
-                        .HasColumnType("varchar(100)");
+                        .HasColumnType("varchar(MAX)");
 
                     b.HasKey("Id");
 
