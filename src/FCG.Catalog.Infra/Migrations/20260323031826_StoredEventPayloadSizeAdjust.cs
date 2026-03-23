@@ -1,61 +1,64 @@
-﻿using System;
+using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
 namespace FCG.Catalog.Infra.Migrations
 {
-    /// <inheritdoc />
     public partial class StoredEventPayloadSizeAdjust : Migration
     {
-        /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            
-            migrationBuilder.AlterTable(
-                name: "StoredEvents",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    AggregateId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    AggregateType = table.Column<string>(type: "varchar(MAX)", nullable: false),
-                    EventType = table.Column<string>(type: "varchar(MAX)", nullable: false),
-                    Payload = table.Column<string>(type: "varchar(MAX)", nullable: false),
-                    OccurredOn = table.Column<DateTime>(type: "datetime2", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_StoredEvents", x => x.Id);
-                });
+            migrationBuilder.AlterColumn<string>(
+                name: "AggregateType",
+                table: "StoredEvents",
+                type: "varchar(max)",
+                nullable: false,
+                oldClrType: typeof(string),
+                oldType: "varchar(100)");
 
+            migrationBuilder.AlterColumn<string>(
+                name: "EventType",
+                table: "StoredEvents",
+                type: "varchar(max)",
+                nullable: false,
+                oldClrType: typeof(string),
+                oldType: "varchar(100)");
+
+            migrationBuilder.AlterColumn<string>(
+                name: "Payload",
+                table: "StoredEvents",
+                type: "varchar(max)",
+                nullable: false,
+                oldClrType: typeof(string),
+                oldType: "varchar(8000)");
         }
 
-        /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropTable(
-                name: "CartItem");
+            migrationBuilder.AlterColumn<string>(
+                name: "AggregateType",
+                table: "StoredEvents",
+                type: "varchar(100)",
+                nullable: false,
+                oldClrType: typeof(string),
+                oldType: "varchar(max)");
 
-            migrationBuilder.DropTable(
-                name: "Game");
+            migrationBuilder.AlterColumn<string>(
+                name: "EventType",
+                table: "StoredEvents",
+                type: "varchar(100)",
+                nullable: false,
+                oldClrType: typeof(string),
+                oldType: "varchar(max)");
 
-            migrationBuilder.DropTable(
-                name: "GameLibraryItem");
-
-            migrationBuilder.DropTable(
-                name: "OrderItem");
-
-            migrationBuilder.DropTable(
-                name: "StoredEvents");
-
-            migrationBuilder.DropTable(
-                name: "Cart");
-
-            migrationBuilder.DropTable(
-                name: "GameLibrary");
-
-            migrationBuilder.DropTable(
-                name: "Order");
+            migrationBuilder.AlterColumn<string>(
+                name: "Payload",
+                table: "StoredEvents",
+                type: "varchar(8000)",
+                nullable: false,
+                oldClrType: typeof(string),
+                oldType: "varchar(max)");
         }
     }
 }
