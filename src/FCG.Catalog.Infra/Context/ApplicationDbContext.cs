@@ -25,7 +25,7 @@ namespace FCG.Catalog.Infra.Context
         protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
         {
             configurationBuilder.Properties<string>()
-                .HaveColumnType("varchar(100)");
+                .HaveColumnType("varchar(500)");
         }
 
 
