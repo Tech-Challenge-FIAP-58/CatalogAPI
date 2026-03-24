@@ -1,63 +1,110 @@
-# Projeto RabbitMQ com .NET 10
+# FCG Catalog API
 
-Este projeto demonstra a comunicação assíncrona entre aplicações utilizando **RabbitMQ** com **.NET 10**, aplicando uma arquitetura em camadas inspirada em *Clean Architecture*.
+Este projeto é uma aplicação em camadas com .NET 8 para gerenciamento de catálogo de jogos, carrinho, pedidos e biblioteca do usuário.
 
-## Estrutura do Projeto
+Também possui integração assíncrona com RabbitMQ para o fluxo de pagamento.
 
-- **FCG.Catalog.WebApi**  
-  Projeto principal da solução, responsável por expor os endpoints HTTP (controllers).
+## Estrutura da Solução
 
-- **FCG.Catalog.Core**  
-  Projeto de apoio contendo abstrações e classes base, incluindo componentes relacionados à mensageria (RabbitMQ).
-
-- **FCG.Catalog.Infra**  
-  Responsável pela infraestrutura, contendo as *migrations* e as classes de acesso a dados, incluindo a conexão com o banco de dados SQL Server.
-
-- **FCG.Catalog.Application**  
-  Contém as regras de aplicação, serviços utilizados pelos controllers, além dos *producers* e *consumers* do RabbitMQ.
-
-- **FCG.Catalog.Domain**  
-  Contém as entidades de domínio, DTOs, modelos e validações de negócio.
-
-- **FCG.Catalog.Tests**  
-  Projeto responsável pelos testes automatizados da solução.
+- `FCG.Catalog.WebApi`
+  - Endpoints HTTP (`Controllers`), autenticação, Swagger e configuração de injeção de dependência.
+- `FCG.Catalog.Application`
+  - Serviços de aplicação, orquestração de regras, produtor e consumidor de eventos.
+- `FCG.Catalog.Domain`
+  - Modelos de domínio, DTOs e validações de negócio.
+- `FCG.Catalog.Infra`
+  - Contexto do EF Core, repositórios e acesso ao banco.
+- `FCG.Core`
+  - Contratos compartilhados e integrações transversais.
+- `FCG.Catalog.Tests`
+  - Testes automatizados.
 
 ## Pré-requisitos
 
-- .NET 10 SDK
-- Docker
-- Docker Compose
+- .NET 8 SDK
+- SQL Server (ou LocalDB)
+- RabbitMQ
 
-## Como executar o projeto
+## Como executar a API
 
-### 1. Iniciar o RabbitMQ
+Execute o projeto Web API:
 
-```bash
-docker-compose up -d
-```
+`dotnet run --project src/FCG.Catalog.WebApi/FCG.Catalog.WebApi.csproj`
 
-### 2. Executar a aplicação
+No ambiente de desenvolvimento, o Swagger fica disponível em:
 
-Executar o projeto **FCG.Catalog.WebApi** via Visual Studio ou CLI do .NET.
+- `/swagger`
 
-### 3. Utilização da aplicação — Endpoints e Producer
+Endpoints operacionais:
 
-Após iniciar a aplicação, é possível acessar e testar os endpoints de **CRUD do recurso Game**.
+- `GET /health`
+- `GET /metrics`
 
-Também está disponível o endpoint **POST de Order (Pedido)**, responsável por:
+## Fluxo atual do sistema
 
-- Persistir o pedido no banco de dados;
-- Publicar uma mensagem do tipo **OrderPlacedEvent** em uma fila do RabbitMQ.
+1. O usuário adiciona jogos ao carrinho pelos endpoints de `Cart`.
+2. O usuário finaliza a compra em `POST /Cart/CheckoutCart`.
+3. No checkout, um pedido é criado e um `OrderPlacedEvent` é publicado no RabbitMQ (`queue:OrderPlacedEvent`).
+4. Um fluxo externo de pagamento processa a cobrança e publica `PaymentProcessedEvent`.
+5. O `PaymentProcessedEventConsumer` atualiza o status de pagamento do pedido.
+6. Se aprovado, os jogos comprados são adicionados à biblioteca do usuário.
 
-### 4. Utilização da aplicação — Consumer
+## Rotas da API
 
-Durante a execução da aplicação, um serviço **consumer** é iniciado automaticamente, ficando responsável por escutar a fila **PaymentProcessedEvent**.
+O padrão base das rotas segue o nome do controller: `/{Controller}/{Action}`.
 
-A implementação deste consumer encontra-se no arquivo  
-`PaymentProcessedEventConsumer.cs`, no projeto **FCG.Catalog.Application**.
+### `GameController` (`/Game`)
 
-Ao receber uma mensagem:
+- `POST /Game/RegisterGame` (Admin)
+  - Cria um novo jogo.
+- `GET /Game/GetAllGames` (Autenticado)
+  - Retorna todos os jogos.
+- `GET /Game/GetGameById/{id}` (Autenticado)
+  - Retorna um jogo por id.
+- `PUT /Game/UpdateGame/{id}` (Admin)
+  - Atualiza os dados de um jogo.
+- `DELETE /Game/DeleteGame/{id}` (Admin)
+  - Remove um jogo.
 
-- O status do pagamento é avaliado;
-- O registro do pedido (**Order**) é atualizado no banco de dados;
-- Caso o pagamento seja aprovado, um registro é inserido na tabela **Catalog**, adicionando o jogo à biblioteca do cliente.
+### `CartController` (`/Cart`)
+
+> Observação: os atributos de autorização estão comentados neste controller no momento.
+
+- `GET /Cart/GetCartByUserId/{userId}`
+  - Retorna o carrinho ativo do usuário.
+  - Se não existir, cria um novo carrinho ativo.
+- `POST /Cart/AddItemToCart`
+  - Adiciona um jogo ao carrinho ativo.
+- `DELETE /Cart/RemoveItemFromCart`
+  - Remove um jogo do carrinho ativo.
+- `DELETE /Cart/ClearCart/{userId}`
+  - Remove todos os itens do carrinho ativo.
+- `POST /Cart/CheckoutCart`
+  - Valida consistência do carrinho e valor do pagamento.
+  - Cria o pedido e marca o carrinho como finalizado.
+  - Publica `OrderPlacedEvent`.
+
+### `OrderController` (`/Order`)
+
+- `POST /Order/RegisterOrder` (Admin)
+  - Cria um pedido diretamente.
+- `GET /Order/GetOrderById/{id}` (Autenticado)
+  - Retorna os detalhes do pedido por id.
+- `GET /Order/GetOrdersByUserId/{userId}` (Autenticado)
+  - Retorna o histórico de pedidos do usuário.
+- `PUT /Order/UpdateOrder/{id}` (Admin)
+  - Atualiza os dados do pedido.
+
+### `LibraryController` (`/Library`)
+
+- `GET /Library/GetLibraryGamesByUserId/{userId}` (Autenticado)
+  - Retorna os jogos disponíveis na biblioteca do usuário.
+
+## Eventos de integração assíncrona
+
+- `OrderPlacedEvent`
+  - Publicado após a criação do pedido no checkout.
+  - Contém dados do pedido e do pagamento para o processamento externo.
+- `PaymentProcessedEvent`
+  - Consumido por esta API.
+  - Atualiza o status de pagamento do pedido e, quando aprovado, libera os jogos na biblioteca do usuário.
