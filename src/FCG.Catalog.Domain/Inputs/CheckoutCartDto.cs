@@ -29,6 +29,9 @@ public sealed record class CheckoutCartDto
     [Required]
     [MinLength(3)]
     public string Cvv { get; init; } = default!;
+
+    [Required]
+    public required string UserEmail { get; set; }
 }
 
 public enum PaymentMethod

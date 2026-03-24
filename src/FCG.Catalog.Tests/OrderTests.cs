@@ -211,7 +211,8 @@ namespace FCG.Catalog.Tests
 			var checkoutDto = new CheckoutCartDto
 			{
 				ClientId = 10,
-				PaymentMethod = Domain.Inputs.PaymentMethod.CreditCard,
+                UserEmail = "test@gmail.com",
+                PaymentMethod = Domain.Inputs.PaymentMethod.CreditCard,
 				Amount = 150.00M,
 				CardName = "John Doe",
 				CardNumber = "123456789012",

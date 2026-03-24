@@ -112,6 +112,9 @@ builder.Services.AddScoped<IGameLibraryService, GameLibraryService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 
 builder.Services.AddScoped<IOrderPlacedEventProducer, OrderPlacedEventProducer>();
+builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+builder.Services.AddScoped<IAspNetUser, AspNetUser>();
+
 
 builder.Services.AddAuthorization();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

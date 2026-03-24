@@ -87,6 +87,7 @@ namespace FCG.Catalog.Application.Services
             {
                 await _orderPlacedEventProducer.Send(new OrderPlacedEvent(
                     checkoutDto.ClientId,
+                    checkoutDto.UserEmail,
                     id,
                     (FCG.Core.Integration.PaymentMethod)checkoutDto.PaymentMethod,
                     checkoutDto.Amount,

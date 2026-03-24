@@ -290,6 +290,7 @@ public class CartTests
         var invalidDto = new CheckoutCartDto
         {
             ClientId = 10,
+            UserEmail = "test@gmail.com",
             PaymentMethod = PaymentMethod.CreditCard,
             Amount = 0,
             CardName = "A",
@@ -484,6 +485,7 @@ public class CartTests
         => new()
         {
             ClientId = userId,
+            UserEmail = "test@gmail.com",
             PaymentMethod = PaymentMethod.CreditCard,
             Amount = amount,
             CardName = "John Doe",

@@ -12,7 +12,7 @@ public class OrderPlacedEventProducerTests
     {
         var providerMock = new Mock<ISendEndpointProvider>();
         var endpointMock = new Mock<ISendEndpoint>();
-        var message = new OrderPlacedEvent(10, Guid.NewGuid(), PaymentMethod.CreditCard, 150, "John", "123456789012", "12/30", "123");
+        var message = new OrderPlacedEvent(10, "test@gmail.com", Guid.NewGuid(), PaymentMethod.CreditCard, 150, "John", "123456789012", "12/30", "123");
 
         providerMock
             .Setup(p => p.GetSendEndpoint(It.Is<Uri>(u => u.OriginalString == "queue:OrderPlacedEvent")))
