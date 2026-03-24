@@ -20,10 +20,16 @@ namespace FCG.Catalog.WebApi.Settings
                         .GetRequiredService<IOptions<RabbitMqSettings>>()
                         .Value;
 
-                    cfg.Host(rabbitSettings.Host, rabbitSettings.VirtualHost, h =>
+                    cfg.Host(rabbitSettings.Host, 5671, "/", h =>
                     {
                         h.Username(rabbitSettings.Username);
                         h.Password(rabbitSettings.Password);
+                        h.UseSsl(s =>
+                        {
+                            s.Protocol = SslProtocols.Tls12;
+
+                            s.ServerName = settings.Host; // O ServerName deve ser igual ao Host para validação do certificado SSL
+                        });
                     });
 
                     cfg.UseMessageRetry(r =>
