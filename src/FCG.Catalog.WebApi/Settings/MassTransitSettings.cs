@@ -3,6 +3,7 @@ using FCG.Catalog.WebApi.Settings.Dtos;
 using FCG.Core.Objects;
 using MassTransit;
 using Microsoft.Extensions.Options;
+using System.Security.Authentication;
 
 namespace FCG.Catalog.WebApi.Settings
 {
@@ -28,7 +29,7 @@ namespace FCG.Catalog.WebApi.Settings
                         {
                             s.Protocol = SslProtocols.Tls12;
 
-                            s.ServerName = settings.Host; // O ServerName deve ser igual ao Host para validação do certificado SSL
+                            s.ServerName = rabbitSettings.Host; // O ServerName deve ser igual ao Host para validação do certificado SSL
                         });
                     });
 
