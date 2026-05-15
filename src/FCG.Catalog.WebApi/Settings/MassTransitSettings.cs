@@ -21,7 +21,7 @@ namespace FCG.Catalog.WebApi.Settings
                         .GetRequiredService<IOptions<RabbitMqSettings>>()
                         .Value;
 
-                    cfg.Host(rabbitSettings.Host, 5671, "/", h =>
+                    cfg.Host(rabbitSettings.Host, 5672, "/", h =>
                     {
                         h.Username(rabbitSettings.Username);
                         h.Password(rabbitSettings.Password);

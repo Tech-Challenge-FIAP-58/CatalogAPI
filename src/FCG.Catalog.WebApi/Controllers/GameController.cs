@@ -7,7 +7,7 @@ namespace FCG.Catalog.WebApi.Controllers
 {
     public class GameController(IGameService service, ILogger<GameController> logger) : StandardController
     {
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         [HttpPost("RegisterGame")]
         public Task<IActionResult> Create([FromBody] GameRegisterDto register)
         {
@@ -15,7 +15,7 @@ namespace FCG.Catalog.WebApi.Controllers
             return TryMethodAsync(() => service.Create(register), logger);
         }
 
-        [Authorize]
+        //[Authorize]
         [HttpGet("GetAllGames")]
         public Task<IActionResult> Get()
         {
@@ -31,7 +31,7 @@ namespace FCG.Catalog.WebApi.Controllers
             return TryMethodAsync(() => service.GetById(id), logger);
         }
 
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         [HttpPut("UpdateGame/{id:guid}")]
         public Task<IActionResult> Update(Guid id, [FromBody] GameUpdateDto update)
         {
@@ -39,7 +39,7 @@ namespace FCG.Catalog.WebApi.Controllers
             return TryMethodAsync(() => service.Update(id, update), logger);
         }
 
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         [HttpDelete("DeleteGame/{id:guid}")]
         public Task<IActionResult> Delete(Guid id)
         {

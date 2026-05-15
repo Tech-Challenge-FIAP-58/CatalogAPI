@@ -1,9 +1,13 @@
+using Elastic.Clients.Elasticsearch;
+using Elastic.Transport;
 using FCG.Catalog.Application.Interfaces;
 using FCG.Catalog.Application.Producers;
 using FCG.Catalog.Application.Services;
 using FCG.Catalog.Domain.Mediatr;
+using FCG.Catalog.Infra.Configuration;
 using FCG.Catalog.Infra.Context;
 using FCG.Catalog.Infra.Repository;
+using FCG.Catalog.Infra.Search;
 using FCG.Catalog.WebApi.Settings;
 using FCG.Core;
 using MediatR;
@@ -12,12 +16,18 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using OpenTelemetry.Metrics;
-using OpenTelemetry.Trace;
 using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 using Serilog;
 using Serilog.Sinks.Grafana.Loki;
 using System.Reflection;
 using System.Text;
+
+using System.Globalization;
+
+var cultureInfo = new CultureInfo("en-US");
+CultureInfo.DefaultThreadCurrentCulture = cultureInfo;
+CultureInfo.DefaultThreadCurrentUICulture = cultureInfo;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -47,6 +57,16 @@ var jwtConfig = configSection.Get<JwtConfigurations>()!;
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSingleton<ElasticsearchClient>(sp =>
+{
+    var cfg = builder.Configuration.GetSection("Elasticsearch");
+    var settings = new ElasticsearchClientSettings(new Uri(cfg["Uri"]!))
+    .Authentication(new BasicAuthentication(cfg["Username"]!, cfg["Password"]!))
+    .DefaultIndex(cfg["IndexName"]!);
+
+    return new ElasticsearchClient(settings);
+});
+
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo
@@ -87,6 +107,8 @@ builder.Services.AddAutoMapper(
 builder.Services.AddMediatR(Assembly.GetExecutingAssembly());
 builder.Services.AddScoped<IMediatorHandler, MediatorHandler>();
 
+builder.Services.AddHostedService<ElasticsearchIndexInitializer>();
+
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("Core"));
@@ -107,6 +129,7 @@ builder.Services.AddScoped<ICartService, CartService>();
 builder.Services.AddScoped<IGameService, GameService>();
 builder.Services.AddScoped<IGameLibraryService, GameLibraryService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
+builder.Services.AddScoped<IGameSearchService, GameSearchService>();
 
 builder.Services.AddScoped<IOrderPlacedEventProducer, OrderPlacedEventProducer>();
 
