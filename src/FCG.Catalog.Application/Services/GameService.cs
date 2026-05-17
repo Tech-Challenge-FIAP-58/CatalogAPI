@@ -6,10 +6,11 @@ using FCG.Catalog.Infra.Repository;
 using FCG.Catalog.Domain.Inputs;
 using FCG.Catalog.Domain.Web;
 using AutoMapper;
+using FCG.Catalog.Domain.Common;
 
 namespace FCG.Catalog.Application.Services
 {
-    public class GameService(IGameRepository _repository, IMapper _mapper) : BaseService, IGameService
+    public class GameService(IGameRepository _repository, IMapper _mapper, IEventLogRepository eventLogRepository) : BaseService, IGameService
     {
         public async Task<IApiResponse<Guid?>> Create(GameRegisterDto gameRegisterDto)
         {
@@ -32,6 +33,12 @@ namespace FCG.Catalog.Application.Services
             var id = _repository.Create(game);
 
             await _repository.SaveChangesAsync();
+            await eventLogRepository.InsertGameEventLog(new GameEventLog
+            {
+                GameId = id.ToString(),
+                Name = gameRegisterDto.Name,
+                Message = "Novo jogo criado"
+            });
 
             return Created<Guid?>(id, "Game created successfully.");
         }
@@ -48,6 +55,12 @@ namespace FCG.Catalog.Application.Services
             _repository.Remove(game); // No-op alignment
 
             await _repository.SaveChangesAsync();
+            await eventLogRepository.InsertGameEventLog(new GameEventLog
+            {
+                GameId = id.ToString(),
+                Name = game.Name,
+                Message = "Jogo removido"
+            });
 
             return NoContent();
         }
@@ -78,6 +91,12 @@ namespace FCG.Catalog.Application.Services
             _repository.Update(game); // No-op alignment
 
             await _repository.SaveChangesAsync();
+            await eventLogRepository.InsertGameEventLog(new GameEventLog
+            {
+                GameId = game.Id.ToString(),
+                Name = game.Name,
+                Message = "Jogo atualizado"
+            });
             
             return NoContent();
         }

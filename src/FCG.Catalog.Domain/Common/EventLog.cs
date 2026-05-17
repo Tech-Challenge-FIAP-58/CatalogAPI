@@ -11,5 +11,8 @@ namespace FCG.Catalog.Domain.Common
 
         [BsonElement("message"), BsonRepresentation(BsonType.String)]
         public string? Message { get; set; }
+
+        [BsonElement("application"), BsonRepresentation(BsonType.String)]
+        public string? Application { get; set; } = "FCG.Catalog";
     }
 }
