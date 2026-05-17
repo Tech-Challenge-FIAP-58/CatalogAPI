@@ -54,6 +54,7 @@ builder.Services.AddSwaggerGen(c =>
         Title = "FCG.Catalog.WebApi",
         Version = "v1"
     });
+    c.AddServer(new OpenApiServer { Url = "/catalog", Description = "Via Load Balancer" });
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Name = "JWT Authentication",
@@ -163,11 +164,8 @@ using (var scope = app.Services.CreateScope())
 }
 #endregion
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.MapGet("/health", () => Results.Ok("Healthy")).ExcludeFromDescription();
 
