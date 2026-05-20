@@ -3,6 +3,7 @@ using FCG.Catalog.Application.Services;
 using FCG.Catalog.Domain.Events;
 using FCG.Catalog.Domain.Inputs;
 using FCG.Catalog.Domain.Models.Library;
+using FCG.Catalog.Infra.Caching;
 using FCG.Catalog.Infra.Repository;
 using Moq;
 using System.Net;
@@ -12,15 +13,17 @@ namespace FCG.Catalog.Tests;
 public class GameLibraryTests
 {
     private readonly Mock<IGameLibraryRepository> _repositoryMock;
+    private readonly Mock<ICachingService> _cachingServiceMock;
     private readonly Mock<IMapper> _mapperMock;
     private readonly GameLibraryService _sut;
 
     public GameLibraryTests()
     {
         _repositoryMock = new Mock<IGameLibraryRepository>();
-        _mapperMock = new Mock<IMapper>();
+		_cachingServiceMock = new Mock<ICachingService>();
+		_mapperMock = new Mock<IMapper>();
 
-        _sut = new GameLibraryService(_repositoryMock.Object, _mapperMock.Object);
+        _sut = new GameLibraryService(_repositoryMock.Object, _mapperMock.Object, _cachingServiceMock.Object);
     }
 
     [Fact]
