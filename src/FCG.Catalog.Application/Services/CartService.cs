@@ -1,11 +1,12 @@
-using System.ComponentModel.DataAnnotations;
+using AutoMapper;
 using FCG.Catalog.Application.Interfaces;
+using FCG.Catalog.Domain.Common;
 using FCG.Catalog.Domain.Inputs;
 using FCG.Catalog.Domain.Models.Cart;
 using FCG.Catalog.Domain.Validation;
 using FCG.Catalog.Domain.Web;
 using FCG.Catalog.Infra.Repository;
-using AutoMapper;
+using System.ComponentModel.DataAnnotations;
 
 namespace FCG.Catalog.Application.Services
 {
@@ -13,7 +14,8 @@ namespace FCG.Catalog.Application.Services
         ICartRepository repository,
         IGameRepository gameRepository,
         IOrderService orderService,
-        IMapper mapper) : BaseService, ICartService
+        IMapper mapper,
+        IEventLogRepository eventLogRepository) : BaseService, ICartService
     {
         public async Task<IApiResponse<CartResponseDto?>> GetByUserId(int userId)
         {
@@ -85,6 +87,13 @@ namespace FCG.Catalog.Application.Services
             }
 
             await repository.SaveChangesAsync();
+            await eventLogRepository.InsertCartEventLog(new CartEventLog
+            {
+                UserId = dto.UserId,
+                GameId = game.Id.ToString(),
+                Message = "Jogo adicionado ao carrinho"
+
+            });
 
             return Ok<CartResponseDto?>(mapper.Map<CartResponseDto>(cart));
         }
@@ -109,7 +118,15 @@ namespace FCG.Catalog.Application.Services
 
             cart.RemoveItem(dto.GameId);
             repository.Update(cart);
+
             await repository.SaveChangesAsync();
+            await eventLogRepository.InsertCartEventLog(new CartEventLog
+            {
+                UserId = dto.UserId,
+                GameId = dto.GameId.ToString(),
+                Message = "Jogo removido do carrinho"
+
+            });
 
             return Ok<CartResponseDto?>(mapper.Map<CartResponseDto>(cart));
         }
@@ -126,6 +143,13 @@ namespace FCG.Catalog.Application.Services
             cart.Clear();
             repository.Update(cart);
             await repository.SaveChangesAsync();
+
+            await eventLogRepository.InsertCartEventLog(new CartEventLog
+            {
+                UserId = userId,
+                Message = "Carrinho limpo"
+
+            });
 
             return Ok<CartResponseDto?>(mapper.Map<CartResponseDto>(cart));
         }
@@ -207,6 +231,12 @@ namespace FCG.Catalog.Application.Services
             repository.Update(cart);
 
             await repository.SaveChangesAsync();
+            await eventLogRepository.InsertCartEventLog(new CartEventLog
+            {
+                UserId = dto.ClientId,
+                Message = "Checkout do carrinho realizado"
+
+            });
 
             return Created<Guid?>(orderId, "Order created.");
         }
