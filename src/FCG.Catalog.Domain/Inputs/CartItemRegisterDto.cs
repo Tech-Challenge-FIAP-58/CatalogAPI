@@ -20,7 +20,7 @@ public sealed record class CartItemRegisterDto
     public string Description { get; init; } = default!;
 
     [Required]
-    [Range(typeof(decimal), "0.01", "79228162514264337593543950335", ErrorMessage = "Preço deve ser maior que zero.")]
+    [Range(0.01, 79228162514264337593543950335.99, ErrorMessage = "Preço deve ser maior que zero.")]
     public decimal UnitPrice { get; init; } = default!;
 
     [Required]
