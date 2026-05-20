@@ -54,7 +54,10 @@ builder.Services.AddSwaggerGen(c =>
         Title = "FCG.Catalog.WebApi",
         Version = "v1"
     });
-    c.AddServer(new OpenApiServer { Url = "/catalog", Description = "Via Load Balancer" });
+    if (builder.Environment.IsDevelopment())
+        c.AddServer(new OpenApiServer { Url = "/", Description = "Local" });
+    else
+        c.AddServer(new OpenApiServer { Url = "/catalog", Description = "Via Load Balancer" });
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Name = "JWT Authentication",
@@ -110,6 +113,11 @@ builder.Services.AddScoped<IGameLibraryService, GameLibraryService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 
 builder.Services.AddScoped<IOrderPlacedEventProducer, OrderPlacedEventProducer>();
+
+builder.Services.AddStackExchangeRedisCache(options =>
+{
+    options.Configuration = builder.Configuration["Redis:Connection"];
+});
 
 builder.Services.AddAuthorization();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

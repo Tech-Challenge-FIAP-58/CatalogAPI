@@ -1,0 +1,12 @@
+version: "3.9"
+
+# Infraestrutura local para desenvolvimento da CatalogAPI.
+# Uso: docker compose up -d
+
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: fiap-redis
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
