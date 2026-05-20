@@ -18,6 +18,7 @@ public class CartTests
     private readonly Mock<IGameRepository> _gameRepositoryMock;
     private readonly Mock<IOrderService> _orderServiceMock;
     private readonly Mock<IMapper> _mapperMock;
+    private readonly Mock<IEventLogRepository> _eventLogRepositoryMock;
     private readonly CartService _sut;
 
     public CartTests()
@@ -26,12 +27,13 @@ public class CartTests
         _gameRepositoryMock = new Mock<IGameRepository>();
         _orderServiceMock = new Mock<IOrderService>();
         _mapperMock = new Mock<IMapper>();
+        _eventLogRepositoryMock = new Mock<IEventLogRepository>();
 
         _mapperMock
             .Setup(m => m.Map<CartResponseDto>(It.IsAny<Cart>()))
             .Returns((Cart cart) => ToResponse(cart));
 
-        _sut = new CartService(_repositoryMock.Object, _gameRepositoryMock.Object, _orderServiceMock.Object, _mapperMock.Object);
+        _sut = new CartService(_repositoryMock.Object, _gameRepositoryMock.Object, _orderServiceMock.Object, _mapperMock.Object, _eventLogRepositoryMock.Object);
     }
 
     [Fact]

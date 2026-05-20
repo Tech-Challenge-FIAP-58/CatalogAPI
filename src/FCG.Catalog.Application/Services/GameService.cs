@@ -18,6 +18,12 @@ public class GameService(
     : BaseService, IGameService
 {
     public async Task<IApiResponse<Guid?>> Create(GameRegisterDto gameRegisterDto)
+using AutoMapper;
+using FCG.Catalog.Domain.Common;
+
+namespace FCG.Catalog.Application.Services
+{
+    public class GameService(IGameRepository _repository, IMapper _mapper, IEventLogRepository eventLogRepository) : BaseService, IGameService
     {
         try { DtoValidator.ValidateObject(gameRegisterDto); }
         catch (ValidationException ex)
@@ -32,6 +38,13 @@ public class GameService(
         var game = _mapper.Map<Game>(gameRegisterDto);
         var id = _repository.Create(game);
         await _repository.SaveChangesAsync();
+            await _repository.SaveChangesAsync();
+            await eventLogRepository.InsertGameEventLog(new GameEventLog
+            {
+                GameId = id.ToString(),
+                Name = gameRegisterDto.Name,
+                Message = "Novo jogo criado"
+            });
 
         var doc = new GameDocument
         {
@@ -65,6 +78,13 @@ public class GameService(
         game.Update(updateDto.Description, updateDto.Price, updateDto.IsAvailable);
         _repository.Update(game);
         await _repository.SaveChangesAsync();
+            await _repository.SaveChangesAsync();
+            await eventLogRepository.InsertGameEventLog(new GameEventLog
+            {
+                GameId = id.ToString(),
+                Name = game.Name,
+                Message = "Jogo removido"
+            });
 
         try
         {
@@ -119,5 +139,15 @@ public class GameService(
         return game is null
             ? NotFound<GameResponseDto?>("Game not found.")
             : Ok<GameResponseDto?>(_mapper.Map<GameResponseDto>(game));
+            await _repository.SaveChangesAsync();
+            await eventLogRepository.InsertGameEventLog(new GameEventLog
+            {
+                GameId = game.Id.ToString(),
+                Name = game.Name,
+                Message = "Jogo atualizado"
+            });
+            
+            return NoContent();
+        }
     }
 }

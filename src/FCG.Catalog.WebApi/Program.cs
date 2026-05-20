@@ -22,6 +22,7 @@ using Serilog;
 using Serilog.Sinks.Grafana.Loki;
 using System.Reflection;
 using System.Text;
+using FCG.Catalog.Infra.Caching;
 
 using System.Globalization;
 
@@ -74,6 +75,10 @@ builder.Services.AddSwaggerGen(c =>
         Title = "FCG.Catalog.WebApi",
         Version = "v1"
     });
+    if (builder.Environment.IsDevelopment())
+        c.AddServer(new OpenApiServer { Url = "/", Description = "Local" });
+    else
+        c.AddServer(new OpenApiServer { Url = "/catalog", Description = "Via Load Balancer" });
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Name = "JWT Authentication",
@@ -118,7 +123,17 @@ builder.AddMessageBusConfiguration();
 builder.InitilizeRetrySettings();
 builder.AddMassTransitSettings();
 
+builder.Services.AddScoped<ICachingService, CachingService>();
+builder.Services.AddStackExchangeRedisCache(options =>
+{
+    options.InstanceName = "instance";
+	options.Configuration = builder.Configuration.GetConnectionString("Redis");
+});
+
+builder.Services.AddSingleton<MongoDbService>();
+
 // repositório de banco de dados
+builder.Services.AddScoped<IEventLogRepository, EventLogRepository>();
 builder.Services.AddScoped<ICartRepository, CartRepository>();
 builder.Services.AddScoped<IGameRepository, GameRepository>();
 builder.Services.AddScoped<IGameLibraryRepository, GameLibraryRepository>();
@@ -132,6 +147,11 @@ builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IGameSearchService, GameSearchService>();
 
 builder.Services.AddScoped<IOrderPlacedEventProducer, OrderPlacedEventProducer>();
+
+builder.Services.AddStackExchangeRedisCache(options =>
+{
+    options.Configuration = builder.Configuration["Redis:Connection"];
+});
 
 builder.Services.AddAuthorization();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -186,11 +206,8 @@ using (var scope = app.Services.CreateScope())
 }
 #endregion
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.MapGet("/health", () => Results.Ok("Healthy")).ExcludeFromDescription();
 
