@@ -1,3 +1,4 @@
+using Amazon.SQS;
 using FCG.Catalog.Application.Interfaces;
 using FCG.Catalog.Application.Producers;
 using FCG.Catalog.Application.Services;
@@ -113,6 +114,9 @@ builder.Services.AddScoped<IGameLibraryService, GameLibraryService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 
 builder.Services.AddScoped<IOrderPlacedEventProducer, OrderPlacedEventProducer>();
+builder.Services.AddDefaultAWSOptions(builder.Configuration.GetAWSOptions());
+builder.Services.AddAWSService<IAmazonSQS>();
+builder.Services.AddScoped<ISqsNotificationProducer, SqsNotificationProducer>();
 
 builder.Services.AddStackExchangeRedisCache(options =>
 {
