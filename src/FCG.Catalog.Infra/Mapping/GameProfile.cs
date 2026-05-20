@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using FCG.Catalog.Domain.Inputs;
 using FCG.Catalog.Domain.Models.Catalog;
+using FCG.Catalog.Infra.Mongo;
 
 namespace FCG.Catalog.Infra.Mapping;
 
@@ -28,6 +29,9 @@ public class GameProfile : Profile
             .ForMember(d => d.Id, opt => opt.Ignore())
             .ForMember(d => d.CreatedAt, opt => opt.Ignore())
             .ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
+
+        CreateMap<GameDocument, GameResponseDto>()
+            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => Guid.Parse(src.Id)));
 
         CreateMap<Game, GameResponseDto>()
             .ConstructUsing(g => new GameResponseDto

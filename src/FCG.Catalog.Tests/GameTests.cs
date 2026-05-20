@@ -7,6 +7,9 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using System.Net;
 using FCG.Catalog.Domain.Models.Catalog;
+using FCG.Catalog.Application.Interfaces;
+using Castle.Core.Logging;
+using Microsoft.Extensions.Logging;
 
 namespace FCG.Catalog.Tests
 {
@@ -14,6 +17,8 @@ namespace FCG.Catalog.Tests
 	{
 		private readonly Mock<IGameRepository> _repositoryMock;
 		private readonly Mock<IEventLogRepository> _eventoLogRepositoryMock;
+		private readonly Mock<IGameSearchService> _gameSearchServiceMock;
+		private readonly Mock<ILogger<GameService>> _loggerRepository;
 		private readonly IMapper _mapper;
 		private readonly GameService _sut;
 
@@ -21,13 +26,15 @@ namespace FCG.Catalog.Tests
 		{
 			_repositoryMock = new Mock<IGameRepository>();
 			_eventoLogRepositoryMock = new Mock<IEventLogRepository>();
+			_gameSearchServiceMock = new Mock<IGameSearchService>();
+			_loggerRepository = new Mock<ILogger<GameService>>();
 
 			var expression = new MapperConfigurationExpression();
 			expression.AddProfile<GameProfile>();
 			var config = new MapperConfiguration(expression, NullLoggerFactory.Instance);
 			_mapper = config.CreateMapper();
 
-			_sut = new GameService(_repositoryMock.Object, _mapper, _eventoLogRepositoryMock.Object);
+			_sut = new GameService(_repositoryMock.Object, _mapper, _gameSearchServiceMock.Object, _eventoLogRepositoryMock.Object, _loggerRepository.Object);
 		}
 
 		[Fact]
