@@ -1,5 +1,6 @@
 using FCG.Catalog.Application.Interfaces;
 using FCG.Catalog.Domain.Inputs;
+using FCG.Catalog.Infra.Context;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

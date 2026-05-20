@@ -19,6 +19,7 @@ using Serilog;
 using Serilog.Sinks.Grafana.Loki;
 using System.Reflection;
 using System.Text;
+using FCG.Catalog.Infra.Caching;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -101,7 +102,17 @@ builder.AddMessageBusConfiguration();
 builder.InitilizeRetrySettings();
 builder.AddMassTransitSettings();
 
+builder.Services.AddScoped<ICachingService, CachingService>();
+builder.Services.AddStackExchangeRedisCache(options =>
+{
+    options.InstanceName = "instance";
+	options.Configuration = builder.Configuration.GetConnectionString("Redis");
+});
+
+builder.Services.AddSingleton<MongoDbService>();
+
 // repositório de banco de dados
+builder.Services.AddScoped<IEventLogRepository, EventLogRepository>();
 builder.Services.AddScoped<ICartRepository, CartRepository>();
 builder.Services.AddScoped<IGameRepository, GameRepository>();
 builder.Services.AddScoped<IGameLibraryRepository, GameLibraryRepository>();
@@ -143,37 +154,37 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 var app = builder.Build();
 
 #region MIGRATION COM RETRY
-using (var scope = app.Services.CreateScope())
-{
-    var services = scope.ServiceProvider;
-    var logger = services.GetRequiredService<ILogger<Program>>();
-    var dbContext = services.GetRequiredService<ApplicationDbContext>();
-    const int maxAttempts = 10;
-    for (int attempt = 1; attempt <= maxAttempts; attempt++)
-    {
-        try
-        {
-            logger.LogInformation("Trying to apply migrations (attempt {Attempt}/{MaxAttempts})...", attempt, maxAttempts);
-            dbContext.Database.Migrate(); // applies pending migrations (synchronous)
-            logger.LogInformation("Migrations applied successfully.");
-            break;
-        }
-        catch (Exception ex)
-        {
-            logger.LogWarning(ex, "Failed to apply migrations on attempt {Attempt}.", attempt);
-            if (attempt == maxAttempts)
-            {
-                logger.LogError(ex, "Could not apply migrations after {MaxAttempts} attempts. Shutting down application.", maxAttempts);
-                throw; // aborts startup (you may choose not to throw and continue)
-            }
-            // simple backoff (2s * attempt), capped at 30s
-            var delay = TimeSpan.FromSeconds(Math.Min(30, 2 * attempt));
-            logger.LogInformation("Waiting {Delay} before next attempt...", delay);
-            // uses Task.Delay to avoid blocking the thread
-            await Task.Delay(delay);
-        }
-    }
-}
+//using (var scope = app.Services.CreateScope())
+//{
+//    var services = scope.ServiceProvider;
+//    var logger = services.GetRequiredService<ILogger<Program>>();
+//    var dbContext = services.GetRequiredService<ApplicationDbContext>();
+//    const int maxAttempts = 10;
+//    for (int attempt = 1; attempt <= maxAttempts; attempt++)
+//    {
+//        try
+//        {
+//            logger.LogInformation("Trying to apply migrations (attempt {Attempt}/{MaxAttempts})...", attempt, maxAttempts);
+//            dbContext.Database.Migrate(); // applies pending migrations (synchronous)
+//            logger.LogInformation("Migrations applied successfully.");
+//            break;
+//        }
+//        catch (Exception ex)
+//        {
+//            logger.LogWarning(ex, "Failed to apply migrations on attempt {Attempt}.", attempt);
+//            if (attempt == maxAttempts)
+//            {
+//                logger.LogError(ex, "Could not apply migrations after {MaxAttempts} attempts. Shutting down application.", maxAttempts);
+//                throw; // aborts startup (you may choose not to throw and continue)
+//            }
+//            // simple backoff (2s * attempt), capped at 30s
+//            var delay = TimeSpan.FromSeconds(Math.Min(30, 2 * attempt));
+//            logger.LogInformation("Waiting {Delay} before next attempt...", delay);
+//            // uses Task.Delay to avoid blocking the thread
+//            await Task.Delay(delay);
+//        }
+//    }
+//}
 #endregion
 
 app.UseSwagger();

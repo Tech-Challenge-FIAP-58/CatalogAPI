@@ -13,19 +13,21 @@ namespace FCG.Catalog.Tests
 	public class GameTests
 	{
 		private readonly Mock<IGameRepository> _repositoryMock;
+		private readonly Mock<IEventLogRepository> _eventoLogRepositoryMock;
 		private readonly IMapper _mapper;
 		private readonly GameService _sut;
 
 		public GameTests()
 		{
 			_repositoryMock = new Mock<IGameRepository>();
+			_eventoLogRepositoryMock = new Mock<IEventLogRepository>();
 
 			var expression = new MapperConfigurationExpression();
 			expression.AddProfile<GameProfile>();
 			var config = new MapperConfiguration(expression, NullLoggerFactory.Instance);
 			_mapper = config.CreateMapper();
 
-			_sut = new GameService(_repositoryMock.Object, _mapper);
+			_sut = new GameService(_repositoryMock.Object, _mapper, _eventoLogRepositoryMock.Object);
 		}
 
 		[Fact]

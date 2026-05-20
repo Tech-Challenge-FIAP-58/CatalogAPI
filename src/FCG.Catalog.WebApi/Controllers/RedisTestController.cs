@@ -1,39 +1,35 @@
+using FCG.Catalog.Infra.Caching;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Caching.Distributed;
-using System.Text;
 
 namespace FCG.Catalog.WebApi.Controllers;
 
 [ApiController]
 [Route("redis-test")]
-public class RedisTestController(IDistributedCache cache) : ControllerBase
+public class RedisTestController(ICachingService cachingService) : ControllerBase
 {
     [HttpPost("{key}")]
     public async Task<IActionResult> Set(string key, [FromBody] string value)
     {
-        await cache.SetAsync(key, Encoding.UTF8.GetBytes(value), new DistributedCacheEntryOptions
-        {
-            AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5)
-        });
-
-        return Ok(new { key, value, expiresInMinutes = 5 });
+        await cachingService.SetAsync(key, value);
+        return Ok("Valor definido.");
     }
 
     [HttpGet("{key}")]
     public async Task<IActionResult> Get(string key)
     {
-        var bytes = await cache.GetAsync(key);
+        var rs = await cachingService.GetAsync<string>(key);
+        if (rs == null)
+        {
+            return Ok("Chave não encontrada ou expirou.");
+		}
 
-        if (bytes is null)
-            return NotFound(new { key, message = "Chave não encontrada ou expirada." });
-
-        return Ok(new { key, value = Encoding.UTF8.GetString(bytes) });
+		return Ok(rs);
     }
 
     [HttpDelete("{key}")]
     public async Task<IActionResult> Delete(string key)
     {
-        await cache.RemoveAsync(key);
+        await cachingService.RemoveAsync(key);
         return Ok(new { key, message = "Chave removida." });
     }
 }
