@@ -18,6 +18,7 @@ using Serilog;
 using Serilog.Sinks.Grafana.Loki;
 using System.Reflection;
 using System.Text;
+using FCG.Catalog.Infra.Caching;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -95,6 +96,13 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.AddMessageBusConfiguration();
 builder.InitilizeRetrySettings();
 builder.AddMassTransitSettings();
+
+builder.Services.AddScoped<ICachingService, CachingService>();
+builder.Services.AddStackExchangeRedisCache(options =>
+{
+    options.InstanceName = "instance";
+	options.Configuration = builder.Configuration.GetConnectionString("Redis");
+});
 
 builder.Services.AddSingleton<MongoDbService>();
 
