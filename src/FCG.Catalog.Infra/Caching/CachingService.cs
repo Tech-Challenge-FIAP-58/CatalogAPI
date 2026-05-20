@@ -32,6 +32,11 @@ namespace FCG.Catalog.Infra.Caching
 			await SetAsync(key, jsonValue);
 		}
 
+		public async Task RemoveAsync(string key)
+		{
+			await _cache.RemoveAsync(key);
+		}
+
 		#region private ::
 
 		private async Task<string?> GetAsync(string key)
