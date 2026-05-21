@@ -1,5 +1,6 @@
 using Elastic.Clients.Elasticsearch;
 using Elastic.Transport;
+using Amazon.SQS;
 using FCG.Catalog.Application.Interfaces;
 using FCG.Catalog.Application.Producers;
 using FCG.Catalog.Application.Services;
@@ -124,11 +125,6 @@ builder.InitilizeRetrySettings();
 builder.AddMassTransitSettings();
 
 builder.Services.AddScoped<ICachingService, CachingService>();
-builder.Services.AddStackExchangeRedisCache(options =>
-{
-    options.InstanceName = "instance";
-	options.Configuration = builder.Configuration.GetConnectionString("Redis");
-});
 
 builder.Services.AddSingleton<MongoDbService>();
 
@@ -147,10 +143,13 @@ builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IGameSearchService, GameSearchService>();
 
 builder.Services.AddScoped<IOrderPlacedEventProducer, OrderPlacedEventProducer>();
+builder.Services.AddDefaultAWSOptions(builder.Configuration.GetAWSOptions());
+builder.Services.AddAWSService<IAmazonSQS>();
+builder.Services.AddScoped<ISqsNotificationProducer, SqsNotificationProducer>();
 
 builder.Services.AddStackExchangeRedisCache(options =>
 {
-    options.Configuration = builder.Configuration["Redis:Connection"];
+    options.Configuration = builder.Configuration["Redis:Connection"] ?? "localhost:6379";
 });
 
 builder.Services.AddAuthorization();
@@ -184,7 +183,7 @@ using (var scope = app.Services.CreateScope())
         try
         {
             logger.LogInformation("Trying to apply migrations (attempt {Attempt}/{MaxAttempts})...", attempt, maxAttempts);
-            dbContext.Database.Migrate(); // applies pending migrations (synchronous)
+            dbContext.Database.Migrate();
             logger.LogInformation("Migrations applied successfully.");
             break;
         }
@@ -194,12 +193,10 @@ using (var scope = app.Services.CreateScope())
             if (attempt == maxAttempts)
             {
                 logger.LogError(ex, "Could not apply migrations after {MaxAttempts} attempts. Shutting down application.", maxAttempts);
-                throw; // aborts startup (you may choose not to throw and continue)
+                throw;
             }
-            // simple backoff (2s * attempt), capped at 30s
             var delay = TimeSpan.FromSeconds(Math.Min(30, 2 * attempt));
             logger.LogInformation("Waiting {Delay} before next attempt...", delay);
-            // uses Task.Delay to avoid blocking the thread
             await Task.Delay(delay);
         }
     }

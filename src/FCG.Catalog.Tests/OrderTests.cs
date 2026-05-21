@@ -15,20 +15,22 @@ namespace FCG.Catalog.Tests
 {
 	public class OrderTests
 	{
-        private readonly Mock<IOrderRepository> _repositoryMock;
+		private readonly Mock<IOrderRepository> _repositoryMock;
 		private readonly Mock<IGameRepository> _gameRepositoryMock;
 		private readonly Mock<IOrderPlacedEventProducer> _orderPlacedEventProducerMock;
+		private readonly Mock<ISqsNotificationProducer> _sqsNotificationProducerMock;
 		private readonly Mock<IMapper> _mapperMock;
 		private readonly OrderService _sut;
 
 		public OrderTests()
-       {
+	   {
 			_repositoryMock = new Mock<IOrderRepository>();
 			_gameRepositoryMock = new Mock<IGameRepository>();
 			_orderPlacedEventProducerMock = new Mock<IOrderPlacedEventProducer>();
+			_sqsNotificationProducerMock = new Mock<ISqsNotificationProducer>();
 			_mapperMock = new Mock<IMapper>();
 
-          _sut = new OrderService(_repositoryMock.Object, _gameRepositoryMock.Object, _orderPlacedEventProducerMock.Object, _mapperMock.Object);
+		  _sut = new OrderService(_repositoryMock.Object, _gameRepositoryMock.Object, _orderPlacedEventProducerMock.Object, _sqsNotificationProducerMock.Object, _mapperMock.Object);
 		}
 
 		[Fact]

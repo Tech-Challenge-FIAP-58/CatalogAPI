@@ -11,7 +11,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace FCG.Catalog.Application.Services
 {
-    public class OrderService(IOrderRepository _repository, IGameRepository _gameRepository, IOrderPlacedEventProducer _orderPlacedEventProducer, IMapper _mapper) : BaseService, IOrderService
+    public class OrderService(IOrderRepository _repository, IGameRepository _gameRepository, IOrderPlacedEventProducer _orderPlacedEventProducer, ISqsNotificationProducer _sqsNotificationProducer, IMapper _mapper) : BaseService, IOrderService
     {
         public async Task<IApiResponse<Guid?>> Create(OrderRegisterDto orderRegisterDto, CheckoutCartDto? checkoutDto = null)
         {
@@ -94,6 +94,11 @@ namespace FCG.Catalog.Application.Services
                     checkoutDto.CardNumber,
                     checkoutDto.ExpirationDate,
                     checkoutDto.Cvv));
+
+                await _sqsNotificationProducer.Send(
+                    destinatario: $"cliente-{checkoutDto.ClientId}@fiap.com",
+                    assunto: "Pedido recebido",
+                    corpo: $"Seu pedido {id} no valor de R$ {checkoutDto.Amount:F2} foi recebido e está sendo processado.");
             }
 
             return Created<Guid?>(id, "Order created successfully.");
