@@ -1,5 +1,6 @@
 ﻿using FCG.Catalog.Domain.Common;
 using FCG.Catalog.Infra.Context;
+using FCG.Core;
 using MongoDB.Driver;
 
 namespace FCG.Catalog.Infra.Repository
@@ -8,8 +9,14 @@ namespace FCG.Catalog.Infra.Repository
     {
         private readonly IMongoCollection<CartEventLog> _cartLogs = mongoDbService.Database?.GetCollection<CartEventLog>("cartLogs");
         private readonly IMongoCollection<GameEventLog> _gameLogs = mongoDbService.Database?.GetCollection<GameEventLog>("gameLogs");
+		private readonly IMongoCollection<OrderPlacedEventLog> _orderLogs = mongoDbService.Database?.GetCollection<OrderPlacedEventLog>("orderLogs");
 
-        public async Task<IEnumerable<CartEventLog>> GetCartEnvetLogs()
+		public async Task InsertOrderPlacedEventLog(OrderPlacedEventLog log)
+        {
+			await _orderLogs.InsertOneAsync(log);
+		}
+
+		public async Task<IEnumerable<CartEventLog>> GetCartEnvetLogs()
         {
             return await _cartLogs.Find(FilterDefinition<CartEventLog>.Empty).ToListAsync();
         }

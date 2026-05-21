@@ -1,4 +1,5 @@
 ﻿using FCG.Catalog.Domain.Common;
+using FCG.Core;
 
 namespace FCG.Catalog.Infra.Repository
 {
@@ -10,5 +11,6 @@ namespace FCG.Catalog.Infra.Repository
         Task<IEnumerable<GameEventLog>> GetGameEnvetLogs();
         Task<GameEventLog?> GetGameEventLogById(string id);
         Task InsertGameEventLog(GameEventLog log);
-    }
+        Task InsertOrderPlacedEventLog(OrderPlacedEventLog log);
+	}
 }
