@@ -1,4 +1,5 @@
 using FCG.Catalog.Application.Producers;
+using FCG.Catalog.Infra.Repository;
 using FCG.Core.Integration;
 using MassTransit;
 using Moq;
@@ -12,13 +13,14 @@ public class OrderPlacedEventProducerTests
     {
         var providerMock = new Mock<ISendEndpointProvider>();
         var endpointMock = new Mock<ISendEndpoint>();
-        var message = new OrderPlacedEvent(10, Guid.NewGuid(), PaymentMethod.CreditCard, 150, "John", "123456789012", "12/30", "123");
+        var eventLogRepositoryMock = new Mock<IEventLogRepository>();
+		var message = new OrderPlacedEvent(10, Guid.NewGuid(), PaymentMethod.CreditCard, 150, "John", "123456789012", "12/30", "123");
 
         providerMock
             .Setup(p => p.GetSendEndpoint(It.Is<Uri>(u => u.OriginalString == "queue:OrderPlacedEvent")))
             .ReturnsAsync(endpointMock.Object);
 
-        var sut = new OrderPlacedEventProducer(providerMock.Object);
+        var sut = new OrderPlacedEventProducer(providerMock.Object, eventLogRepositoryMock.Object);
 
         await sut.Send(message);
 
